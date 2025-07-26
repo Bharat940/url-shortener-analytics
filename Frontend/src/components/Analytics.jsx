@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getAnalytics } from "../api/analytics.api.js";
 import { useIsMobile } from "../hooks/useIsMobile.js";
@@ -28,7 +28,7 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
+  Tooltip as RechartsTooltip,
   ResponsiveContainer,
   PieChart,
   Pie,
@@ -37,7 +37,6 @@ import {
   Bar,
 } from "recharts";
 import dayjs from "dayjs";
-import { useState } from "react";
 
 const { RangePicker } = DatePicker;
 const { Title, Text } = Typography;
@@ -52,7 +51,6 @@ const Analytics = () => {
     dayjs().subtract(30, "days"),
     dayjs(),
   ]);
-
   const [selectedUrl, setSelectedUrl] = useState("all");
 
   const { data, isLoading, isError, error } = useQuery({
@@ -118,21 +116,26 @@ const Analytics = () => {
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto space-y-6 p-4">
+    <div className="w-full max-w-7xl mx-auto p-4 space-y-6">
       <Title level={2} className="text-gray-900 dark:text-gray-100">
         Analytics Dashboard
       </Title>
 
-      <Card className="mb-6">
-        <div className="flex flex-col md:flex-row gap-4">
+      <Card className="mb-6" style={{ padding: 0 }}>
+        <div style={{ padding: 12 }}>
           <Space
             direction={isMobile ? "vertical" : "horizontal"}
             className="w-full"
+            size="middle"
           >
             <RangePicker
               value={dateRange}
               onChange={setDateRange}
               className="w-full md:w-auto"
+              disabledDate={(current) =>
+                current && current > dayjs().endOf("day")
+              }
+              allowEmpty={[false, false]}
             />
             <Select
               value={selectedUrl}
@@ -146,12 +149,17 @@ const Analytics = () => {
                   value: url._id,
                 })),
               ]}
+              showSearch
+              optionFilterProp="label"
+              filterOption={(input, option) =>
+                option.label.toLowerCase().includes(input.toLowerCase())
+              }
             />
           </Space>
         </div>
       </Card>
 
-      <Row gutter={[16, 16]}>
+      <Row gutter={[16, 16]} justify={isMobile ? "center" : "start"} className="mb-6">
         <Col xs={24} sm={12} md={6}>
           <Card>
             <Statistic
@@ -159,6 +167,7 @@ const Analytics = () => {
               value={summary.totalClicks || 0}
               prefix={<EyeOutlined />}
               valueStyle={{ color: "#3f8600" }}
+              style={{ whiteSpace: "nowrap" }}
             />
           </Card>
         </Col>
@@ -169,6 +178,7 @@ const Analytics = () => {
               value={summary.totalUrls || 0}
               prefix={<LinkOutlined />}
               valueStyle={{ color: "#1890ff" }}
+              style={{ whiteSpace: "nowrap" }}
             />
           </Card>
         </Col>
@@ -180,6 +190,7 @@ const Analytics = () => {
               precision={1}
               prefix={<BarChartOutlined />}
               valueStyle={{ color: "#722ed1" }}
+              style={{ whiteSpace: "nowrap" }}
             />
           </Card>
         </Col>
@@ -190,57 +201,68 @@ const Analytics = () => {
               value={summary.activeUrls || 0}
               prefix={<CalendarOutlined />}
               valueStyle={{ color: "#eb2f96" }}
+              style={{ whiteSpace: "nowrap" }}
             />
           </Card>
         </Col>
       </Row>
 
-      <Row gutter={[16, 16]}>
-        <Col xs={24} lg={12}>
-          <Card title="Click Trends (Last 30 Days)">
-            <ResponsiveContainer width="100%" height={300}>
+      <div className={`flex flex-wrap gap-6 ${isMobile ? "justify-center" : ""}`}>
+        <Card
+          title="Click Trends (Last 30 Days)"
+          className={isMobile ? "w-full" : "w-[48%]"}
+          style={{ minWidth: 300, padding: 0 }}
+        >
+          <div style={{ padding: 12 }}>
+            <ResponsiveContainer width="100%" height={isMobile ? 250 : 300}>
               <LineChart data={clickTrends}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis
                   dataKey="date"
-                  tick={{ fontSize: 12 }}
+                  tick={{ fontSize: isMobile ? 10 : 12 }}
                   tickFormatter={(value) => dayjs(value).format("MM/DD")}
                 />
                 <YAxis />
-                <Tooltip
-                  labelFormatter={(value) =>
-                    dayjs(value).format("MMM DD, YYYY")
-                  }
+                <RechartsTooltip
+                  labelFormatter={(value) => dayjs(value).format("MMM DD, YYYY")}
                 />
                 <Line
                   type="monotone"
                   dataKey="clicks"
                   stroke="#8884d8"
                   strokeWidth={2}
-                  dot={{ r: 4 }}
+                  dot={{ r: 3 }}
                 />
               </LineChart>
             </ResponsiveContainer>
-          </Card>
-        </Col>
+          </div>
+        </Card>
 
-        <Col xs={24} lg={12}>
-          <Card title="Geographic Distribution">
-            <ResponsiveContainer width="100%" height={300}>
+        <Card
+          title="Geographic Distribution"
+          className={isMobile ? "w-full" : "w-[48%]"}
+          style={{ minWidth: 300, padding: 0 }}
+        >
+          <div style={{ padding: 12 }}>
+            <ResponsiveContainer width="100%" height={isMobile ? 250 : 300}>
               <BarChart data={geoData.slice(0, 8)}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="country" tick={{ fontSize: 12 }} />
+                <XAxis dataKey="country" tick={{ fontSize: isMobile ? 10 : 12 }} />
                 <YAxis />
-                <Tooltip />
+                <RechartsTooltip />
                 <Bar dataKey="clicks" fill="#8884d8" />
               </BarChart>
             </ResponsiveContainer>
-          </Card>
-        </Col>
+          </div>
+        </Card>
 
-        <Col xs={24} lg={12}>
-          <Card title="Device Distribution">
-            <ResponsiveContainer width="100%" height={300}>
+        <Card
+          title="Device Distribution"
+          className={isMobile ? "w-full" : "w-[48%]"}
+          style={{ minWidth: 300, padding: 0 }}
+        >
+          <div style={{ padding: 12 }}>
+            <ResponsiveContainer width="100%" height={isMobile ? 250 : 300}>
               <PieChart>
                 <Pie
                   data={deviceData}
@@ -250,7 +272,7 @@ const Analytics = () => {
                   label={({ device, percent }) =>
                     `${device} ${(percent * 100).toFixed(0)}%`
                   }
-                  outerRadius={80}
+                  outerRadius={isMobile ? 70 : 80}
                   fill="#8884d8"
                   dataKey="clicks"
                   nameKey="device"
@@ -262,26 +284,30 @@ const Analytics = () => {
                     />
                   ))}
                 </Pie>
-                <Tooltip />
+                <RechartsTooltip />
               </PieChart>
             </ResponsiveContainer>
-          </Card>
-        </Col>
+          </div>
+        </Card>
 
-        <Col xs={24} lg={12}>
-          <Card title="Browser Distribution">
-            <ResponsiveContainer width="100%" height={300}>
+        <Card
+          title="Browser Distribution"
+          className={isMobile ? "w-full" : "w-[48%]"}
+          style={{ minWidth: 300, padding: 0 }}
+        >
+          <div style={{ padding: 12 }}>
+            <ResponsiveContainer width="100%" height={isMobile ? 250 : 300}>
               <BarChart data={browserData.slice(0, 6)}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="browser" tick={{ fontSize: 12 }} />
+                <XAxis dataKey="browser" tick={{ fontSize: isMobile ? 10 : 12 }} />
                 <YAxis />
-                <Tooltip />
+                <RechartsTooltip />
                 <Bar dataKey="clicks" fill="#82ca9d" />
               </BarChart>
             </ResponsiveContainer>
-          </Card>
-        </Col>
-      </Row>
+          </div>
+        </Card>
+      </div>
 
       <Card title="Top Performing URLs">
         <Table
@@ -298,6 +324,8 @@ const Analytics = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-600 dark:text-blue-400"
+                    style={{ wordBreak: "break-all" }}
+                    aria-label={`Shortened URL: ${fullShortUrl}`}
                   >
                     {fullShortUrl}
                   </a>
@@ -322,12 +350,14 @@ const Analytics = () => {
               render: (clicks) => <Tag color="blue">{clicks}</Tag>,
               sorter: (a, b) => a.clicks - b.clicks,
               defaultSortOrder: "descend",
+              width: 100,
             },
             {
               title: "Created",
               dataIndex: "createdAt",
               key: "createdAt",
               render: (date) => dayjs(date).format("MMM DD, YYYY"),
+              width: 140,
             },
           ]}
           dataSource={topUrls}
@@ -335,6 +365,7 @@ const Analytics = () => {
           pagination={{ pageSize: 10 }}
           size={isMobile ? "small" : "default"}
           scroll={{ x: isMobile ? 800 : undefined }}
+          className={isMobile ? "mobile-analytics-table" : ""}
         />
       </Card>
     </div>
