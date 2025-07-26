@@ -10,13 +10,15 @@ export const anonymousRateLimiter = async (req, res, next) => {
     return next();
   }
 
-  const ip = req.ip;
+  const ip = req.ip || "unknown-ip";
+  const userAgent = req.headers["user-agent"] || "unknown-agent";
+  const key = `anon:${ip}:${userAgent}`;
 
   try {
-    const requests = await redisClient.incr(ip);
+    const requests = await redisClient.incr(key);
 
     if (requests === 1) {
-      await redisClient.expire(ip, EXPIRATION_IN_SECONDS);
+      await redisClient.expire(key, EXPIRATION_IN_SECONDS);
     }
 
     if (requests > ANONYMOUS_URL_LIMIT) {
