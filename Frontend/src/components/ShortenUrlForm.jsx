@@ -19,6 +19,7 @@ const ShortenUrlForm = () => {
   const isMobile = useIsMobile();
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
   const [url, setUrl] = useState("");
+  const [urlError, setUrlError] = useState(null);
   const [customSlug, setCustomSlug] = useState("");
   const [generateQR, setGenerateQR] = useState(false);
   const [result, setResult] = useState(null);
@@ -28,11 +29,30 @@ const ShortenUrlForm = () => {
 
   const queryClient = useQueryClient();
 
+  // Live validation
+  const validateUrl = (val) => {
+    const normalized = normalizeUrl(val);
+    if (!val) {
+      setUrlError(null);
+      return false;
+    }
+    if (!isValidUrl(normalized)) {
+      setUrlError("Please enter a valid URL (must start with http/https)");
+      return false;
+    }
+    setUrlError(null);
+    return true;
+  };
+
+  const handleChange = (e) => {
+    setUrl(e.target.value);
+    validateUrl(e.target.value);
+  };
+
   const handleSubmit = async () => {
     const normalizedUrl = normalizeUrl(url);
 
-    if (!url || !isValidUrl(normalizedUrl)) {
-      message.error("Please enter a valid URL");
+    if (!validateUrl(url)) {
       return;
     }
 
@@ -119,12 +139,15 @@ const ShortenUrlForm = () => {
       <Input
         placeholder="Enter URL to shorten"
         value={url}
-        onChange={(e) => setUrl(e.target.value)}
+        onChange={handleChange}
         size="large"
         allowClear
-        className="mb-4"
+        className="mb-2"
         type="url"
       />
+      {urlError && (
+        <Alert message={urlError} type="error" showIcon className="mb-4" />
+      )}
 
       {isAuthenticated && (
         <Input
@@ -147,13 +170,7 @@ const ShortenUrlForm = () => {
         </Checkbox>
       )}
 
-      <Button
-        type="primary"
-        onClick={handleSubmit}
-        loading={loading}
-        block
-        disabled={!url || !isValidUrl(normalizeUrl(url))}
-      >
+      <Button type="primary" onClick={handleSubmit} loading={loading} block>
         Shorten URL
       </Button>
 

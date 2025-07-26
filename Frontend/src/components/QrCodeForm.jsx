@@ -6,15 +6,34 @@ import { normalizeUrl, isValidUrl } from "../utils/urlHelper.js";
 
 const QrCodeForm = () => {
   const [url, setUrl] = useState("");
+  const [urlError, setUrlError] = useState(null);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  const validateUrl = (val) => {
+    const normalized = normalizeUrl(val);
+    if (!val) {
+      setUrlError(null);
+      return false;
+    }
+    if (!isValidUrl(normalized)) {
+      setUrlError("Please enter a valid URL (must start with http/https)");
+      return false;
+    }
+    setUrlError(null);
+    return true;
+  };
+
+  const handleChange = (e) => {
+    setUrl(e.target.value);
+    validateUrl(e.target.value);
+  };
+
   const handleSubmit = async () => {
     const normalizedUrl = normalizeUrl(url);
 
-    if (!url || !isValidUrl(normalizedUrl)) {
-      message.error("Please enter a valid URL");
+    if (!validateUrl(url)) {
       return;
     }
 
@@ -49,19 +68,16 @@ const QrCodeForm = () => {
       <Input
         placeholder="Enter URL for QR code"
         value={url}
-        onChange={(e) => setUrl(e.target.value)}
+        onChange={handleChange}
         size="large"
         allowClear
-        className="mb-4"
+        className="mb-2"
         type="url"
       />
-      <Button
-        type="primary"
-        onClick={handleSubmit}
-        loading={loading}
-        block
-        disabled={!url || !isValidUrl(normalizeUrl(url))}
-      >
+      {urlError && (
+        <Alert message={urlError} type="error" showIcon className="mb-4" />
+      )}
+      <Button type="primary" onClick={handleSubmit} loading={loading} block>
         Generate QR Code
       </Button>
 
