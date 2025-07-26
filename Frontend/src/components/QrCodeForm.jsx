@@ -11,12 +11,13 @@ const QrCodeForm = () => {
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
-    if (!url || !isValidUrl(normalizeUrl(url))) {
+    const normalizedUrl = normalizeUrl(url);
+
+    if (!url || !isValidUrl(normalizedUrl)) {
       message.error("Please enter a valid URL");
       return;
     }
 
-    const normalizedUrl = normalizeUrl(url);
     setLoading(true);
     setError(null);
     try {

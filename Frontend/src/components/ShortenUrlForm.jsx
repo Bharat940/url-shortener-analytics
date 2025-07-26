@@ -6,7 +6,6 @@ import {
   Input,
   Button,
   Alert,
-  Space,
   message,
   Tooltip,
   Popover,
@@ -30,12 +29,13 @@ const ShortenUrlForm = () => {
   const queryClient = useQueryClient();
 
   const handleSubmit = async () => {
-    if (!url || !isValidUrl(normalizeUrl(url))) {
+    const normalizedUrl = normalizeUrl(url);
+
+    if (!url || !isValidUrl(normalizedUrl)) {
       message.error("Please enter a valid URL");
       return;
     }
 
-    const normalizedUrl = normalizeUrl(url);
     setLoading(true);
     setError(null);
     try {

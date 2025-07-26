@@ -9,9 +9,26 @@ export const normalizeUrl = (inputUrl) => {
 
 export const isValidUrl = (str) => {
   try {
-    new URL(str);
-    return true;
-  } catch (_) {
+    const url = new URL(str);
+
+    if (!["http:", "https:"].includes(url.protocol)) {
+      return false;
+    }
+
+    if (!url.hostname) {
+      return false;
+    }
+
+    if (url.hostname === "localhost") {
+      return true;
+    }
+
+    if (url.hostname.includes(".") || (url.pathname && url.pathname !== "/")) {
+      return true;
+    }
+
+    return false;
+  } catch {
     return false;
   }
 };
