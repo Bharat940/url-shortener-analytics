@@ -4,14 +4,27 @@ import { UAParser } from "ua-parser-js";
 
 export const recordClick = async (urlId, req) => {
   try {
-    let ip =
-      req.ip || req.connection.remoteAddress || req.headers["x-forwarded-for"];
+    let ip = req.headers["x-forwarded-for"]?.split(",")[0].trim() || req.ip || req.connection.remoteAddress || "127.0.0.1";
+
+    ip = ip.replace(/^::ffff:/, "");
+
+    const privateIpRanges = [
+      /^10\./,
+      /^192\.168\./,
+      /^172\.(1[6-9]|2[0-9]|3[0-1])\./,
+      /^127\./,
+      /^::1$/,
+    ];
+
+    let geo;
+    if (privateIpRanges.some((reg) => reg.test(ip))) {
+      geo = { country: "Private", city: "Private Network" };
+    } else {
+      geo = geoip.lookup(ip) || {};
+    }
+
     const userAgent = req.headers["user-agent"] || "";
     const referer = req.headers.referer || req.headers.referrer || "";
-
-    ip = ip.replace(/^::ffff:/, "").replace(/^::1$/, "127.0.0.1");
-
-    const geo = geoip.lookup(ip) || {};
 
     const parser = new UAParser(userAgent);
     const result = parser.getResult();
@@ -22,7 +35,7 @@ export const recordClick = async (urlId, req) => {
 
     const clickData = new Click({
       url: urlId,
-      ip: ip,
+      ip,
       userAgent,
       referer,
       country: geo.country || "Unknown",
