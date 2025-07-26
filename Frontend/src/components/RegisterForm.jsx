@@ -17,7 +17,6 @@ const RegisterForm = () => {
     setLoading(true);
     setError(null);
 
-    // Basic password length check with user feedback
     if (password.length < 6) {
       setError("Password must be at least 6 characters long");
       setLoading(false);
@@ -29,7 +28,27 @@ const RegisterForm = () => {
       dispatch(login(data.user));
       navigate({ to: "/dashboard" });
     } catch (err) {
-      setError(err.message || "Registration failed. Please try again.");
+      let errorMessage = "Registration failed. Please try again.";
+
+      if (err?.response && err.response.data) {
+        const responseData = err.response.data;
+        if (typeof responseData === "string") {
+          errorMessage = responseData;
+        } else if (typeof responseData.message === "string") {
+          errorMessage = responseData.message;
+        } else if (
+          responseData.success === false &&
+          typeof responseData.message === "string"
+        ) {
+          errorMessage = responseData.message;
+        } else {
+          errorMessage = JSON.stringify(responseData);
+        }
+      } else if (err?.message) {
+        errorMessage = err.message;
+      }
+
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -58,6 +77,7 @@ const RegisterForm = () => {
         onFinish={onFinish}
         autoComplete="off"
         requiredMark={false}
+        onFieldsChange={() => error && setError(null)}
       >
         <Form.Item
           label="Full Name"

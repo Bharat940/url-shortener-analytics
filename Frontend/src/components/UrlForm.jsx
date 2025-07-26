@@ -12,7 +12,7 @@ const UrlForm = React.memo(() => {
       {!isAuthenticated && (
         <Alert
           type="info"
-          message="Guest users can create up to 10 URLs and generate QR code per hour. Register to unlock custom slugs and unlimited generation."
+          message="Guest users can create up to 20 combined short URLs and QR codes per day. Register to unlock custom slugs and unlimited generation."
           showIcon
           className="text-center"
           banner

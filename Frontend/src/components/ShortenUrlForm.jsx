@@ -80,7 +80,6 @@ const ShortenUrlForm = () => {
     }
   };
 
-  // Consistent QR popover content
   const qrPopoverContent = result?.qrcode_image ? (
     <div className="text-center p-3 bg-white dark:bg-gray-800">
       <img
@@ -168,7 +167,6 @@ const ShortenUrlForm = () => {
                 {copied ? "Copied!" : "Copy"}
               </Button>
 
-              {/* Consistent QR Code Icon with Popover */}
               <Popover
                 content={qrPopoverContent}
                 title={

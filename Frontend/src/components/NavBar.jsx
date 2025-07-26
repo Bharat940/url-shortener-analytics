@@ -27,12 +27,10 @@ const NavBar = () => {
       setLoggingOut(true);
       await logoutUser();
       dispatch(logout());
-      message.success("Logged out successfully!");
       navigate({ to: "/" });
     } catch (error) {
       console.error("Logout error:", error);
       dispatch(logout());
-      message.warning("Logged out locally");
       navigate({ to: "/" });
     } finally {
       setLoggingOut(false);
@@ -74,7 +72,6 @@ const NavBar = () => {
     <nav className="bg-white dark:bg-gray-900 shadow-sm fixed w-full z-50 top-0 left-0 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
-          {/* Logo */}
           <div className="flex-shrink-0 flex items-center">
             <Link
               to="/"
@@ -84,7 +81,6 @@ const NavBar = () => {
             </Link>
           </div>
 
-          {/* Desktop Nav + Theme Toggle */}
           <div className="hidden md:flex md:items-center md:space-x-4">
             <Link
               to="/"
@@ -109,7 +105,6 @@ const NavBar = () => {
               </>
             )}
 
-            {/* Theme Toggle */}
             <Tooltip title="Toggle Dark/Light Mode">
               <Switch
                 checked={theme === "dark"}
@@ -156,7 +151,6 @@ const NavBar = () => {
             )}
           </div>
 
-          {/* Mobile Menu Button */}
           <div className="flex md:hidden items-center space-x-2">
             <Tooltip title="Toggle Dark/Light Mode">
               <Switch
@@ -178,7 +172,6 @@ const NavBar = () => {
         </div>
       </div>
 
-      {/* Mobile Menu */}
       {menuVisible && (
         <div className="md:hidden px-2 pt-2 pb-3 space-y-1 bg-white dark:bg-gray-900 shadow-md transition-colors duration-300">
           <Link

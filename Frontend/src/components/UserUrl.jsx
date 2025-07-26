@@ -25,7 +25,7 @@ import {
 import { useSelector } from "react-redux";
 import { Link } from "@tanstack/react-router";
 
-const baseUrl = "http://localhost:3000";
+const baseUrl = import.meta.env.VITE_APP_URL || "http://localhost:3000";
 
 const UserUrl = () => {
   const isMobile = useIsMobile();
@@ -48,7 +48,7 @@ const UserUrl = () => {
     showQuickJumper: !isMobile,
     showTotal: (total, range) =>
       isMobile
-        ? `${range[0]}-${range[1]}/${total}`
+        ? `${range[0]}-${range[1]} / ${total}`
         : `${range[0]}-${range[1]} of ${total} items`,
     size: isMobile ? "small" : "default",
   });
@@ -64,7 +64,7 @@ const UserUrl = () => {
     }
   }, []);
 
-  const handleTableChange = (paginationConfig) => {
+  const handleTableChange = (paginationConfig, filters, sorter) => {
     setPagination({
       ...pagination,
       current: paginationConfig.current,
@@ -153,7 +153,9 @@ const UserUrl = () => {
               { label: "Original URL", value: "full_url" },
               { label: "Short URL", value: "short_url" },
             ]}
+            popupMatchSelectWidth={false}
           />
+
           <Button
             icon={
               mobileSortOrder === "asc" ? (
@@ -192,10 +194,11 @@ const UserUrl = () => {
                 href={record.full_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-600 dark:text-blue-400 text-sm break-all"
+                className="text-blue-600 dark:text-blue-400 text-sm break-words"
+                style={{ wordBreak: "break-word" }}
               >
-                {record.full_url.length > 50
-                  ? `${record.full_url.substring(0, 50)}...`
+                {record.full_url.length > 100
+                  ? `${record.full_url.substring(0, 100)}...`
                   : record.full_url}
               </a>
             </div>
@@ -208,7 +211,8 @@ const UserUrl = () => {
                 href={fullShortUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-600 dark:text-blue-400 text-sm break-all"
+                className="text-blue-600 dark:text-blue-400 text-sm break-words"
+                style={{ wordBreak: "break-word" }}
               >
                 {fullShortUrl}
               </a>
@@ -226,13 +230,13 @@ const UserUrl = () => {
               </span>
             </div>
 
-            <div className="flex gap-2 pt-2">
+            <div className="flex gap-2 pt-2 flex-wrap sm:flex-nowrap">
               <Button
                 size="small"
                 icon={<CopyOutlined />}
                 type={copiedId === record._id ? "primary" : "default"}
                 onClick={() => handleCopy(fullShortUrl, record._id)}
-                className={`flex-1 ${
+                className={`flex-grow sm:flex-grow-0 ${
                   copiedId === record._id
                     ? "bg-green-500 text-white border-green-500"
                     : ""
@@ -271,13 +275,6 @@ const UserUrl = () => {
                   title="QR Code"
                   trigger="click"
                   placement="top"
-                  styles={{
-                    body: {
-                      borderRadius: 8,
-                      padding: 0,
-                      width: 180,
-                    },
-                  }}
                 >
                   <Button size="small" icon={<QrcodeOutlined />}>
                     QR
@@ -297,6 +294,7 @@ const UserUrl = () => {
       dataIndex: "full_url",
       key: "full_url",
       width: "30%",
+      responsive: ["md"],
       render: (text) => (
         <a
           href={text}
@@ -308,13 +306,16 @@ const UserUrl = () => {
           {text}
         </a>
       ),
-      ellipsis: true,
+      ellipsis: {
+        showTitle: false,
+      },
     },
     {
       title: "Short URL",
       dataIndex: "short_url",
       key: "short_url",
       width: "25%",
+      responsive: ["sm"],
       render: (text) => {
         const fullShortUrl = `${baseUrl}/${text}`;
         return (
@@ -331,13 +332,16 @@ const UserUrl = () => {
           </a>
         );
       },
-      ellipsis: true,
+      ellipsis: {
+        showTitle: false,
+      },
     },
     {
       title: "Created At",
       dataIndex: "createdAt",
       key: "createdAt",
       width: "15%",
+      responsive: ["md"],
       render: (date) => (
         <span className="text-gray-700 dark:text-gray-300">
           {new Date(date).toLocaleDateString()}
@@ -351,6 +355,7 @@ const UserUrl = () => {
       dataIndex: "clicks",
       key: "clicks",
       width: "10%",
+      responsive: ["sm"],
       render: (count) => (
         <Tag className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
           {count}
@@ -363,9 +368,9 @@ const UserUrl = () => {
       key: "qrcode",
       align: "center",
       width: "10%",
+      responsive: ["md"],
       render: (_, record) => {
         const qrCodeImage = record.qrcode_image;
-
         const qrPopoverContent = qrCodeImage ? (
           <div className="text-center p-3 bg-white dark:bg-gray-800">
             <img
@@ -404,15 +409,6 @@ const UserUrl = () => {
             }
             trigger={qrCodeImage ? "hover" : []}
             placement="leftTop"
-            styles={{
-              body: {
-                borderRadius: 8,
-                boxShadow:
-                  "0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06)",
-                width: 250,
-                padding: 0,
-              },
-            }}
             destroyPopupOnHide
             align={{
               offset: [-10, 0],
@@ -434,58 +430,55 @@ const UserUrl = () => {
       },
     },
     {
-      title: "Analytics",
-      key: "analytics",
-      width: "10%",
-      align: "center",
-      render: (_, record) => (
-        <Link to="/analytics" search={{ urlId: record._id }}>
-          <Button
-            size="small"
-            icon={<BarChartOutlined />}
-            className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
-            title="View Analytics"
-          >
-            {!isMobile && "Analytics"}
-          </Button>
-        </Link>
-      ),
-    },
-    {
       title: "Actions",
       key: "actions",
-      width: "10%",
+      width: "20%",
+      align: "center",
       render: (_, record) => {
         const fullShortUrl = `${baseUrl}/${record.short_url}`;
         return (
-          <Button
-            size="small"
-            type={copiedId === record._id ? "primary" : "default"}
-            onClick={() => handleCopy(fullShortUrl, record._id)}
-            aria-label={`Copy short URL ${fullShortUrl} to clipboard`}
-            className={`transition-all duration-200 ${
-              copiedId === record._id
-                ? "bg-green-500 text-white border-green-500"
-                : "hover:bg-gray-50 dark:hover:bg-gray-600"
-            }`}
-          >
-            {copiedId === record._id ? "Copied!" : "Copy"}
-          </Button>
+          <div className="flex flex-wrap gap-2 justify-center">
+            <Link to="/analytics" search={{ urlId: record._id }}>
+              <Button
+                size="small"
+                icon={<BarChartOutlined />}
+                className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
+                title="View Analytics"
+              >
+                {!isMobile && "Analytics"}
+              </Button>
+            </Link>
+            <Button
+              size="small"
+              type={copiedId === record._id ? "primary" : "default"}
+              onClick={() => handleCopy(fullShortUrl, record._id)}
+              aria-label={`Copy short URL ${fullShortUrl} to clipboard`}
+              className={`transition-all duration-200 ${
+                copiedId === record._id
+                  ? "bg-green-500 text-white border-green-500"
+                  : "hover:bg-gray-50 dark:hover:bg-gray-600"
+              }`}
+            >
+              {copiedId === record._id ? "Copied!" : "Copy"}
+            </Button>
+          </div>
         );
       },
     },
   ];
 
   return (
-    <div className="w-full overflow-x-auto">
-      {/* Mobile sorting controls */}
+    <div className="w-full max-w-full overflow-x-auto sm:overflow-x-visible  mx-auto px-2 sm:px-0">
       {isMobile && <MobileSortControls />}
 
       <Table
         columns={isMobile ? mobileColumns : desktopColumns}
         dataSource={
           isMobile
-            ? sortMobileData(urls)
+            ? sortMobileData(urls).slice(
+                (pagination.current - 1) * pagination.pageSize,
+                pagination.current * pagination.pageSize
+              )
             : urls.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
         }
         rowKey={(record) => record._id}
@@ -496,6 +489,7 @@ const UserUrl = () => {
         size={isMobile ? "small" : "default"}
         showHeader={!isMobile}
         aria-label="User shortened URLs table"
+        bordered
       />
     </div>
   );

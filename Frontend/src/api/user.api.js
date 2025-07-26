@@ -6,10 +6,13 @@ export const loginUser = async (email, password) => {
       email,
       password,
     });
-
     return data;
   } catch (error) {
-    throw error.response.data;
+    if (error.response && error.response.data) {
+      throw error.response.data;
+    } else {
+      throw error;
+    }
   }
 };
 
@@ -22,7 +25,11 @@ export const registerUser = async (name, email, password) => {
     });
     return data;
   } catch (error) {
-    throw error.response.data;
+    if (error.response && error.response.data) {
+      throw error.response.data;
+    } else {
+      throw error;
+    }
   }
 };
 
@@ -31,7 +38,11 @@ export const logoutUser = async () => {
     const { data } = await axiosInstance.get("/api/auth/logout");
     return data;
   } catch (error) {
-    throw error.response.data;
+    if (error.response && error.response.data) {
+      throw error.response.data;
+    } else {
+      throw error;
+    }
   }
 };
 
@@ -40,7 +51,11 @@ export const getCurrentUser = async () => {
     const { data } = await axiosInstance.get("/api/auth/me");
     return data;
   } catch (error) {
-    throw error.response.data;
+    if (error.response && error.response.data) {
+      throw error.response.data;
+    } else {
+      throw error;
+    }
   }
 };
 

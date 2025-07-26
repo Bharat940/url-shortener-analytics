@@ -16,12 +16,33 @@ const LoginForm = () => {
   const onFinish = async ({ email, password }) => {
     setLoading(true);
     setError(null);
+
     try {
       const data = await loginUser(email, password);
       dispatch(login(data.user));
       navigate({ to: "/dashboard" });
     } catch (err) {
-      setError(err.message || "Login failed");
+      let errorMessage = "Login failed. Please try again.";
+
+      if (err?.response && err.response.data) {
+        const responseData = err.response.data;
+        if (typeof responseData === "string") {
+          errorMessage = responseData;
+        } else if (typeof responseData.message === "string") {
+          errorMessage = responseData.message;
+        } else if (
+          responseData.success === false &&
+          typeof responseData.message === "string"
+        ) {
+          errorMessage = responseData.message;
+        } else {
+          errorMessage = JSON.stringify(responseData);
+        }
+      } else if (err?.message) {
+        errorMessage = err.message;
+      }
+
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -53,6 +74,7 @@ const LoginForm = () => {
         onFinish={onFinish}
         autoComplete="off"
         requiredMark={false}
+        onFieldsChange={() => error && setError(null)}
       >
         <Form.Item
           label="Email"

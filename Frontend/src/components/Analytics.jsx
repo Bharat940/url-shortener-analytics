@@ -21,8 +21,6 @@ import {
   EyeOutlined,
   LinkOutlined,
   CalendarOutlined,
-  GlobalOutlined,
-  MobileOutlined,
 } from "@ant-design/icons";
 import {
   LineChart,
@@ -42,9 +40,11 @@ import dayjs from "dayjs";
 import { useState } from "react";
 
 const { RangePicker } = DatePicker;
-const { Title } = Typography;
+const { Title, Text } = Typography;
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884d8"];
+
+const BASE_SHORT_URL = import.meta.env.VITE_APP_URL || "http://localhost:3000";
 
 const Analytics = () => {
   const isMobile = useIsMobile();
@@ -78,7 +78,7 @@ const Analytics = () => {
     return (
       <Alert
         message="Error"
-        description={`Error loading analytics: ${error.message}`}
+        description={`Error loading analytics: ${error.message || error}`}
         type="error"
         showIcon
         className="my-4"
@@ -96,13 +96,33 @@ const Analytics = () => {
     topUrls = [],
   } = analytics;
 
+  const noData =
+    !summary.totalUrls ||
+    summary.totalUrls === 0 ||
+    topUrls.length === 0 ||
+    (clickTrends.length === 0 && geoData.length === 0);
+
+  if (noData) {
+    return (
+      <div className="w-full max-w-7xl mx-auto p-4">
+        <Title level={2} className="text-gray-900 dark:text-gray-100 mb-6">
+          Analytics Dashboard
+        </Title>
+        <Card>
+          <Text type="secondary" className="text-lg">
+            No analytics data available. Create some URLs to see analytics here.
+          </Text>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full max-w-7xl mx-auto space-y-6 p-4">
       <Title level={2} className="text-gray-900 dark:text-gray-100">
         Analytics Dashboard
       </Title>
 
-      {/* Controls */}
       <Card className="mb-6">
         <div className="flex flex-col md:flex-row gap-4">
           <Space
@@ -131,7 +151,6 @@ const Analytics = () => {
         </div>
       </Card>
 
-      {/* Summary Statistics */}
       <Row gutter={[16, 16]}>
         <Col xs={24} sm={12} md={6}>
           <Card>
@@ -176,9 +195,7 @@ const Analytics = () => {
         </Col>
       </Row>
 
-      {/* Charts */}
       <Row gutter={[16, 16]}>
-        {/* Click Trends */}
         <Col xs={24} lg={12}>
           <Card title="Click Trends (Last 30 Days)">
             <ResponsiveContainer width="100%" height={300}>
@@ -207,7 +224,6 @@ const Analytics = () => {
           </Card>
         </Col>
 
-        {/* Geographic Distribution */}
         <Col xs={24} lg={12}>
           <Card title="Geographic Distribution">
             <ResponsiveContainer width="100%" height={300}>
@@ -222,7 +238,6 @@ const Analytics = () => {
           </Card>
         </Col>
 
-        {/* Device Distribution */}
         <Col xs={24} lg={12}>
           <Card title="Device Distribution">
             <ResponsiveContainer width="100%" height={300}>
@@ -253,7 +268,6 @@ const Analytics = () => {
           </Card>
         </Col>
 
-        {/* Browser Distribution */}
         <Col xs={24} lg={12}>
           <Card title="Browser Distribution">
             <ResponsiveContainer width="100%" height={300}>
@@ -269,7 +283,6 @@ const Analytics = () => {
         </Col>
       </Row>
 
-      {/* Top Performing URLs */}
       <Card title="Top Performing URLs">
         <Table
           columns={[
@@ -277,16 +290,19 @@ const Analytics = () => {
               title: "Short URL",
               dataIndex: "short_url",
               key: "short_url",
-              render: (text) => (
-                <a
-                  href={`http://localhost:3000/${text}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 dark:text-blue-400"
-                >
-                  {text}
-                </a>
-              ),
+              render: (text) => {
+                const fullShortUrl = `${BASE_SHORT_URL}/${text}`;
+                return (
+                  <a
+                    href={fullShortUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 dark:text-blue-400"
+                  >
+                    {fullShortUrl}
+                  </a>
+                );
+              },
             },
             {
               title: "Original URL",

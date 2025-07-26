@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { createShortUrl } from "../api/shortUrlApi";
+import { createShortUrl } from "../api/shortUrlApi.js";
 import { Button, Input, Alert, message } from "antd";
 import { DownloadOutlined } from "@ant-design/icons";
 
