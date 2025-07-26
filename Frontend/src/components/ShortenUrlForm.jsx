@@ -29,7 +29,6 @@ const ShortenUrlForm = () => {
 
   const queryClient = useQueryClient();
 
-  // Live validation
   const validateUrl = (val) => {
     const normalized = normalizeUrl(val);
     if (!val) {
@@ -104,17 +103,14 @@ const ShortenUrlForm = () => {
   };
 
   const qrPopoverContent = result?.qrcode_image ? (
-    <div className="text-center p-3 bg-white dark:bg-gray-800">
+    <div className="text-center p-3 bg-white dark:bg-gray-800 rounded-lg w-max max-w-[250px]">
       <img
         src={result.qrcode_image}
         alt="QR Code"
         className={`mx-auto mb-3 rounded-lg ${
           isMobile ? "w-32 h-32" : "w-36 h-36"
         }`}
-        style={{
-          maxWidth: isMobile ? "128px" : "150px",
-          height: "auto",
-        }}
+        style={{ height: "auto" }}
       />
       <Button
         icon={<DownloadOutlined />}
@@ -122,6 +118,7 @@ const ShortenUrlForm = () => {
         type="primary"
         onClick={downloadQrCode}
         className="w-full"
+        aria-label="Download QR Code"
       >
         Download QR Code
       </Button>
@@ -189,6 +186,7 @@ const ShortenUrlForm = () => {
                 className={
                   copied ? "bg-green-500 text-white border-green-500" : ""
                 }
+                aria-label="Copy shortened URL"
               >
                 {copied ? "Copied!" : "Copy"}
               </Button>
@@ -204,15 +202,7 @@ const ShortenUrlForm = () => {
                   result?.qrcode_image ? (isMobile ? "click" : "hover") : []
                 }
                 placement={isMobile ? "topLeft" : "leftTop"}
-                styles={{
-                  body: {
-                    borderRadius: 8,
-                    boxShadow:
-                      "0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06)",
-                    width: 250,
-                    padding: 0,
-                  },
-                }}
+                destroyPopupOnHide
                 align={{
                   offset: isMobile ? [0, -10] : [-10, 0],
                 }}
@@ -223,6 +213,8 @@ const ShortenUrlForm = () => {
                       ? "Show QR Code"
                       : "No QR Code available"
                   }
+                  mouseEnterDelay={0.1}
+                  mouseLeaveDelay={0.1}
                 >
                   <Button
                     icon={
@@ -240,6 +232,7 @@ const ShortenUrlForm = () => {
                         : "cursor-not-allowed opacity-60"
                     }`}
                     disabled={!result?.qrcode_image}
+                    aria-label="Show QR Code"
                   />
                 </Tooltip>
               </Popover>
@@ -248,6 +241,7 @@ const ShortenUrlForm = () => {
                 icon={<DownloadOutlined />}
                 onClick={downloadQrCode}
                 disabled={!result?.qrcode_image}
+                aria-label="Download QR Code"
                 className={`flex items-center justify-center ${
                   !result?.qrcode_image ? "opacity-60 cursor-not-allowed" : ""
                 }`}

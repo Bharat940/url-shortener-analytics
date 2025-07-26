@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Avatar, Dropdown, Button, Switch, Tooltip, message } from "antd";
+import { Avatar, Dropdown, Button, Switch, Tooltip } from "antd";
 import {
   UserOutlined,
   LogoutOutlined,
@@ -182,13 +182,22 @@ const NavBar = () => {
             Home
           </Link>
           {isAuthenticated && (
-            <Link
-              to="/dashboard"
-              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400"
-              onClick={() => setMenuVisible(false)}
-            >
-              Dashboard
-            </Link>
+            <>
+              <Link
+                to="/dashboard"
+                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400"
+                onClick={() => setMenuVisible(false)}
+              >
+                Dashboard
+              </Link>
+              <Link
+                to="/analytics"
+                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400"
+                onClick={() => setMenuVisible(false)}
+              >
+                Analytics
+              </Link>
+            </>
           )}
           {isAuthenticated ? (
             <>

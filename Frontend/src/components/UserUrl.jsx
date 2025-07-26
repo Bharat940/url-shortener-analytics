@@ -241,6 +241,7 @@ const UserUrl = () => {
                     ? "bg-green-500 text-white border-green-500"
                     : ""
                 }`}
+                aria-label={`Copy short URL ${fullShortUrl} to clipboard`}
               >
                 {copiedId === record._id ? "Copied!" : "Copy"}
               </Button>
@@ -248,11 +249,12 @@ const UserUrl = () => {
               {qrCodeImage && (
                 <Popover
                   content={
-                    <div className="text-center p-2">
+                    <div className="text-center p-3 bg-white dark:bg-gray-800 rounded-lg w-max max-w-[250px]">
                       <img
                         src={qrCodeImage}
                         alt="QR Code"
-                        className="w-32 h-32 mx-auto mb-2 rounded-lg"
+                        className="w-32 h-32 mx-auto mb-3 rounded-lg"
+                        style={{ height: "auto" }}
                       />
                       <Button
                         icon={<DownloadOutlined />}
@@ -267,6 +269,7 @@ const UserUrl = () => {
                           document.body.removeChild(link);
                         }}
                         block
+                        aria-label="Download QR Code"
                       >
                         Download
                       </Button>
@@ -275,8 +278,13 @@ const UserUrl = () => {
                   title="QR Code"
                   trigger="click"
                   placement="top"
+                  destroyPopupOnHide
                 >
-                  <Button size="small" icon={<QrcodeOutlined />}>
+                  <Button
+                    size="small"
+                    icon={<QrcodeOutlined />}
+                    aria-label="Show QR Code"
+                  >
                     QR
                   </Button>
                 </Popover>
@@ -372,11 +380,12 @@ const UserUrl = () => {
       render: (_, record) => {
         const qrCodeImage = record.qrcode_image;
         const qrPopoverContent = qrCodeImage ? (
-          <div className="text-center p-3 bg-white dark:bg-gray-800">
+          <div className="text-center p-3 bg-white dark:bg-gray-800 rounded-lg w-max max-w-[250px]">
             <img
               src={qrCodeImage}
               alt="QR Code"
               className="w-36 h-36 mx-auto mb-3 rounded-lg"
+              style={{ height: "auto" }}
             />
             <Button
               icon={<DownloadOutlined />}
@@ -391,6 +400,7 @@ const UserUrl = () => {
                 document.body.removeChild(link);
               }}
               className="w-full"
+              aria-label="Download QR Code"
             >
               Download QR Code
             </Button>
@@ -423,12 +433,16 @@ const UserUrl = () => {
                     ? "text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 cursor-pointer"
                     : "text-gray-400 dark:text-gray-500 cursor-not-allowed opacity-60"
                 }`}
+                aria-label={
+                  qrCodeImage ? "Show QR Code" : "No QR Code available"
+                }
               />
             </Tooltip>
           </Popover>
         );
       },
     },
+
     {
       title: "Actions",
       key: "actions",
@@ -444,6 +458,7 @@ const UserUrl = () => {
                 icon={<BarChartOutlined />}
                 className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
                 title="View Analytics"
+                aria-label={`View analytics for URL ${record.short_url}`}
               >
                 {!isMobile && "Analytics"}
               </Button>
