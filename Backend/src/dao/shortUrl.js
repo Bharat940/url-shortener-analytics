@@ -48,7 +48,13 @@ export const getShortUrl = async (shortUrl, req = null) => {
   );
 
   if (url && req) {
-    await recordClick(url._id, req);
+    if (url.user) {
+      try {
+        await recordClick(url._id, req);
+      } catch (error) {
+        console.error("Failed to record click analytics:", error);
+      }
+    }
   }
 
   return url;

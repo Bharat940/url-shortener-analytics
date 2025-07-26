@@ -1,8 +1,8 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:3000",
-  timeout: 10000, //10s
+  baseURL: "https://url-shortener-analytics-api.onrender.com",
+  timeout: 10000, 
   withCredentials: true,
 });
 
