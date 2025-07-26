@@ -4,7 +4,7 @@ const baseURL = import.meta.env.VITE_APP_URL || "http://localhost:3000";
 
 const axiosInstance = axios.create({
   baseURL,
-  timeout: 10000,
+  timeout: 60000,
   withCredentials: true,
 });
 
