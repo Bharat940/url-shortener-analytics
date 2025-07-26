@@ -13,9 +13,8 @@ export const attachUser = async (req, res, next) => {
     if (!user) return next();
 
     req.user = user;
-    next();
   } catch (err) {
     console.error("Invalid token:", err.message);
-    return res.status(401).json({ message: "Invalid access token" });
   }
+  next();
 };
