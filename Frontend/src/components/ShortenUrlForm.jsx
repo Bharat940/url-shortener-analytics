@@ -12,7 +12,7 @@ import {
   Popover,
   Checkbox,
 } from "antd";
-import { normalizeUrl } from "../utils/urlHelper.js";
+import { normalizeUrl, isValidUrl } from "../utils/urlHelper.js";
 import { QrcodeOutlined, DownloadOutlined } from "@ant-design/icons";
 import { useSelector } from "react-redux";
 
@@ -30,13 +30,12 @@ const ShortenUrlForm = () => {
   const queryClient = useQueryClient();
 
   const handleSubmit = async () => {
-    if (!url) {
+    if (!url || !isValidUrl(normalizeUrl(url))) {
       message.error("Please enter a valid URL");
       return;
     }
 
     const normalizedUrl = normalizeUrl(url);
-
     setLoading(true);
     setError(null);
     try {
@@ -148,7 +147,13 @@ const ShortenUrlForm = () => {
         </Checkbox>
       )}
 
-      <Button type="primary" onClick={handleSubmit} loading={loading} block>
+      <Button
+        type="primary"
+        onClick={handleSubmit}
+        loading={loading}
+        block
+        disabled={!url || !isValidUrl(normalizeUrl(url))}
+      >
         Shorten URL
       </Button>
 

@@ -6,3 +6,12 @@ export const normalizeUrl = (inputUrl) => {
   }
   return `http://${trimmed}`;
 };
+
+export const isValidUrl = (str) => {
+  try {
+    new URL(str);
+    return true;
+  } catch (_) {
+    return false;
+  }
+};

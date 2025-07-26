@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { createShortUrl } from "../api/shortUrlApi.js";
 import { Button, Input, Alert, message } from "antd";
 import { DownloadOutlined } from "@ant-design/icons";
-import { normalizeUrl } from "../utils/urlHelper.js";
+import { normalizeUrl, isValidUrl } from "../utils/urlHelper.js";
 
 const QrCodeForm = () => {
   const [url, setUrl] = useState("");
@@ -11,12 +11,12 @@ const QrCodeForm = () => {
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
-    if (!url) {
+    if (!url || !isValidUrl(normalizeUrl(url))) {
       message.error("Please enter a valid URL");
       return;
     }
-    const normalizedUrl = normalizeUrl(url);
 
+    const normalizedUrl = normalizeUrl(url);
     setLoading(true);
     setError(null);
     try {
@@ -54,7 +54,13 @@ const QrCodeForm = () => {
         className="mb-4"
         type="url"
       />
-      <Button type="primary" onClick={handleSubmit} loading={loading} block>
+      <Button
+        type="primary"
+        onClick={handleSubmit}
+        loading={loading}
+        block
+        disabled={!url || !isValidUrl(normalizeUrl(url))}
+      >
         Generate QR Code
       </Button>
 
