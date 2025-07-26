@@ -14,10 +14,12 @@ const QrCodeForm = () => {
       message.error("Please enter a valid URL");
       return;
     }
+    const normalizedUrl = normalizeUrl(url);
+
     setLoading(true);
     setError(null);
     try {
-      const data = await createShortUrl(url, "", true);
+      const data = await createShortUrl(normalizedUrl, "", true);
       setResult(data);
     } catch (err) {
       setError(err.message || "Failed to generate QR code");

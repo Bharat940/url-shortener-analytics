@@ -12,6 +12,7 @@ import {
   Popover,
   Checkbox,
 } from "antd";
+import { normalizeUrl } from "../utils/urlHelper.js";
 import { QrcodeOutlined, DownloadOutlined } from "@ant-design/icons";
 import { useSelector } from "react-redux";
 
@@ -33,11 +34,14 @@ const ShortenUrlForm = () => {
       message.error("Please enter a valid URL");
       return;
     }
+
+    const normalizedUrl = normalizeUrl(url);
+
     setLoading(true);
     setError(null);
     try {
       const data = await createShortUrl(
-        url,
+        normalizedUrl,
         isAuthenticated ? customSlug : "",
         isAuthenticated ? generateQR : false
       );
