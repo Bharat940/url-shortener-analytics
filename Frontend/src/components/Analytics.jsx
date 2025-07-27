@@ -11,9 +11,9 @@ import {
   Select,
   Spin,
   Alert,
-  Tooltip,
   Typography,
-  Space,
+  Table,
+  Tag,
 } from "antd";
 import {
   BarChartOutlined,
@@ -39,14 +39,11 @@ import dayjs from "dayjs";
 
 const { RangePicker } = DatePicker;
 const { Title, Text } = Typography;
-
-const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884d8"];
-
-const BASE_URL = import.meta.env.VITE_APP_URL || "http://localhost:3000";
+const COLORS = ["#1890ff", "#13c2c2", "#ffc53d", "#eb2f96", "#722ed1"];
+const BASE_URL = import.meta.env.VITE_APP_URL || "http://localhost";
 
 const Analytics = () => {
   const isMobile = useIsMobile();
-
   const [dateRange, setDateRange] = useState([
     dayjs().subtract(30, "day"),
     dayjs(),
@@ -93,10 +90,7 @@ const Analytics = () => {
   } = analytics;
 
   const noData =
-    !summary.totalUrls ||
-    summary.totalUrls === 0 ||
-    topUrls.length === 0 ||
-    (clickTrends.length === 0 && geoData.length === 0);
+    !summary.totalUrls || summary.totalUrls === 0 || topUrls.length === 0;
 
   if (noData)
     return (
@@ -118,222 +112,208 @@ const Analytics = () => {
         Analytics Dashboard
       </Title>
 
-      <Card className="mb-6">
-        <div style={{ padding: 12 }}>
-          <Space
-            direction={isMobile ? "vertical" : "horizontal"}
-            size="middle"
-            align="center"
-            style={{ width: "100%", flexWrap: "wrap" }}
-          >
-            <RangePicker
-              value={dateRange}
-              onChange={setDateRange}
-              disabledDate={(current) =>
-                current && current > dayjs().endOf("day")
-              }
-              allowEmpty={[false, false]}
-              style={{ width: isMobile ? "100%" : "auto", minWidth: 280 }}
-              size={isMobile ? "middle" : "large"}
-            />
-            <Select
-              value={selectedUrl}
-              onChange={setSelectedUrl}
-              placeholder="Select URL"
-              showSearch
-              options={[
-                { label: "All URLs", value: "all" },
-                ...(analytics.urls || []).map(({ _id, short_url, clicks }) => ({
-                  label: `${short_url} (${clicks} clicks)`,
-                  value: _id,
-                })),
-              ]}
-              optionFilterProp="label"
-              filterOption={(input, option) =>
-                option.label.toLowerCase().includes(input.toLowerCase())
-              }
-              style={{ width: isMobile ? "100%" : 250 }}
-              size={isMobile ? "middle" : "large"}
-              popupMatchSelectWidth={false}
-            />
-          </Space>
+      <Card className="mb-6 shadow-md rounded-xl">
+        <div
+          style={{
+            display: "flex",
+            flexDirection: isMobile ? "column" : "row",
+            gap: 12,
+            flexWrap: "wrap",
+            justifyContent: "space-between",
+          }}
+        >
+          <RangePicker
+            value={dateRange}
+            onChange={setDateRange}
+            disabledDate={(current) =>
+              current && current > dayjs().endOf("day")
+            }
+            allowEmpty={[false, false]}
+            style={{
+              flex: 1,
+              minWidth: isMobile ? "100%" : 280,
+              maxWidth: 400,
+            }}
+            size={isMobile ? "middle" : "large"}
+          />
+          <Select
+            value={selectedUrl}
+            onChange={setSelectedUrl}
+            placeholder="Select URL"
+            showSearch
+            options={[
+              { label: "All URLs", value: "all" },
+              ...(analytics.urls || []).map(({ _id, short_url, clicks }) => ({
+                label: `${short_url} (${clicks} clicks)`,
+                value: _id,
+              })),
+            ]}
+            optionFilterProp="label"
+            filterOption={(input, option) =>
+              option.label.toLowerCase().includes(input.toLowerCase())
+            }
+            style={{
+              flex: 1,
+              minWidth: isMobile ? "100%" : 280,
+              maxWidth: 400,
+            }}
+            size={isMobile ? "middle" : "large"}
+            popupMatchSelectWidth={false}
+          />
         </div>
       </Card>
 
-      <Row
-        gutter={[16, 16]}
-        justify={isMobile ? "center" : "start"}
-        className="mb-6"
-      >
-        <Col xs={24} sm={12} md={6}>
-          <Card>
-            <Statistic
-              title="Total Clicks"
-              value={summary.totalClicks || 0}
-              prefix={<EyeOutlined />}
-              valueStyle={{ color: "#3f8600" }}
-              style={{ whiteSpace: "nowrap" }}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} md={6}>
-          <Card>
-            <Statistic
-              title="Total URLs"
-              value={summary.totalUrls || 0}
-              prefix={<LinkOutlined />}
-              valueStyle={{ color: "#1890ff" }}
-              style={{ whiteSpace: "nowrap" }}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} md={6}>
-          <Card>
-            <Statistic
-              title="Avg Clicks/URL"
-              value={summary.avgClicksPerUrl || 0}
-              precision={1}
-              prefix={<BarChartOutlined />}
-              style={{ whiteSpace: "nowrap" }}
-              valueStyle={{ color: "#722ed1" }}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} md={6}>
-          <Card>
-            <Statistic
-              title="Active URLs"
-              value={summary.activeUrls || 0}
-              prefix={<CalendarOutlined />}
-              style={{ whiteSpace: "nowrap" }}
-              valueStyle={{ color: "#eb2f96" }}
-            />
-          </Card>
-        </Col>
+      <Row gutter={[16, 16]} className="mb-6">
+        {[
+          {
+            title: "Total Clicks",
+            value: summary.totalClicks,
+            icon: <EyeOutlined />,
+            color: "#3f8600",
+          },
+          {
+            title: "Total URLs",
+            value: summary.totalUrls,
+            icon: <LinkOutlined />,
+            color: "#1890ff",
+          },
+          {
+            title: "Avg Clicks/URL",
+            value: summary.avgClickPerUrl ?? summary.avgClicksPerUrl,
+            icon: <BarChartOutlined />,
+            color: "#722ed1",
+          },
+          {
+            title: "Active URLs",
+            value: summary.activeUrls,
+            icon: <CalendarOutlined />,
+            color: "#eb2f96",
+          },
+        ].map((stat, idx) => (
+          <Col xs={12} md={6} key={idx}>
+            <Card className="rounded-md shadow-sm">
+              <Statistic
+                title={stat.title}
+                value={stat.value ?? 0}
+                prefix={stat.icon}
+                valueStyle={{ color: stat.color }}
+              />
+            </Card>
+          </Col>
+        ))}
       </Row>
 
-      <Row gutter={[16, 16]} wrap={true} className="mb-8">
+      <Row gutter={[16, 16]} className="mb-8">
         <Col xs={24} md={12}>
-          <Card title="Click Trends (Last 30 Days)" style={{ minHeight: 300 }}>
-            <ResponsiveContainer width="100%" height={isMobile ? 250 : 300}>
-              <LineChart data={clickTrends}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis
-                  dataKey="date"
-                  tick={{ fontSize: isMobile ? 10 : 12 }}
-                  tickFormatter={(value) => dayjs(value).format("MM/DD")}
-                />
-                <YAxis />
-                <RechartsTooltip
-                  labelFormatter={(value) =>
-                    dayjs(value).format("MMM DD, YYYY")
-                  }
-                />
-                <Line
-                  type="monotone"
-                  dataKey="clicks"
-                  stroke="#8884d8"
-                  strokeWidth={2}
-                  dot={{ r: 3 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
+          <Card
+            title="Click Trends"
+            className="rounded-md shadow-sm"
+            style={{ minHeight: 300 }}
+          >
+            <div style={{ display: "flex", justifyContent: "center" }}>
+              <ResponsiveContainer width="95%" height={isMobile ? 250 : 300}>
+                <LineChart data={clickTrends}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis
+                    dataKey="date"
+                    tick={{ fontSize: isMobile ? 10 : 12 }}
+                    tickFormatter={(v) => dayjs(v).format("MM/DD")}
+                  />
+                  <YAxis />
+                  <RechartsTooltip />
+                  <Line
+                    type="monotone"
+                    dataKey="clicks"
+                    stroke="#1890ff"
+                    strokeWidth={3}
+                    dot={{ r: 3 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
           </Card>
         </Col>
         <Col xs={24} md={12}>
-          <Card title="Geographic Distribution" style={{ minHeight: 300 }}>
-            <ResponsiveContainer width="100%" height={isMobile ? 250 : 300}>
-              <BarChart data={geoData.slice(0, 8)}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis
-                  dataKey="country"
-                  tick={{ fontSize: isMobile ? 10 : 12 }}
-                />
-                <YAxis />
-                <RechartsTooltip />
-                <Bar dataKey="clicks" fill="#8884d8" />
-              </BarChart>
-            </ResponsiveContainer>
+          <Card
+            title="Geographic Distribution"
+            className="rounded-md shadow-sm"
+            style={{ minHeight: 300 }}
+          >
+            <div style={{ display: "flex", justifyContent: "center" }}>
+              <ResponsiveContainer width="95%" height={isMobile ? 250 : 300}>
+                <BarChart data={geoData.slice(0, 8)}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="country" />
+                  <YAxis />
+                  <RechartsTooltip />
+                  <Bar dataKey="clicks" fill="#722ed1" radius={[6, 6, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </Card>
         </Col>
       </Row>
 
-      <Row gutter={[16, 16]} wrap={true} className="mb-8">
-        <Col xs={24} md={8}>
-          <Card title="Device Distribution" style={{ minHeight: 300 }}>
-            <ResponsiveContainer width="100%" height={isMobile ? 250 : 300}>
-              <PieChart>
-                <Pie
-                  data={deviceData}
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={isMobile ? 70 : 80}
-                  fill="#8884d8"
-                  dataKey="clicks"
-                  nameKey="device"
-                  label={({ percent, device }) =>
-                    `${device} ${(percent * 100).toFixed(0)}%`
-                  }
-                  labelLine={false}
-                >
-                  {deviceData.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={COLORS[index % COLORS.length]}
-                    />
-                  ))}
-                </Pie>
-                <RechartsTooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </Card>
-        </Col>
-        <Col xs={24} md={8}>
-          <Card title="Browser Distribution" style={{ minHeight: 300 }}>
-            <ResponsiveContainer width="100%" height={isMobile ? 250 : 300}>
-              <PieChart>
-                <Pie
-                  data={browserData.slice(0, 6)}
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={isMobile ? 70 : 80}
-                  fill="#8884d8"
-                  dataKey="clicks"
-                  nameKey="browser"
-                  label={({ percent, browser }) =>
-                    `${browser} ${(percent * 100).toFixed(0)}%`
-                  }
-                  labelLine={false}
-                >
-                  {browserData.slice(0, 6).map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={COLORS[index % COLORS.length]}
-                    />
-                  ))}
-                </Pie>
-                <RechartsTooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </Card>
-        </Col>
+      <Row gutter={[16, 16]} className="mb-8" justify="center" wrap>
+        {[
+          { data: deviceData, title: "Device Distribution" },
+          { data: browserData, title: "Browser Distribution" },
+        ].map((chart, index) => (
+          <Col
+            xs={24}
+            md={12}
+            key={index}
+            style={{ maxWidth: 600, margin: "0 auto" }}
+          >
+            <Card title={chart.title} className="rounded-md shadow-sm">
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  height: isMobile ? 250 : 300,
+                }}
+              >
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={chart.data}
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={isMobile ? 90 : 100}
+                      dataKey="clicks"
+                      nameKey={index === 0 ? "device" : "browser"}
+                      label
+                      labelLine={false}
+                    >
+                      {chart.data.map((entry, idx) => (
+                        <Cell
+                          key={`cell-${idx}`}
+                          fill={COLORS[idx % COLORS.length]}
+                        />
+                      ))}
+                    </Pie>
+                    <RechartsTooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </Card>
+          </Col>
+        ))}
       </Row>
 
-      <Card title="Top Performing URLs">
+      <Card title="Top Performing URLs" className="rounded-md shadow-sm">
         <Table
           columns={[
             {
               title: "Short URL",
               dataIndex: "short_url",
-              key: "short_url",
               render: (text) => (
                 <a
                   href={`${BASE_URL}/${text}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-600 dark:text-blue-400"
-                  style={{ wordBreak: "break-word" }}
-                  aria-label={`Shortened URL: ${BASE_URL}/${text}`}
+                  style={{ color: COLORS[0] }}
                 >
                   {`${BASE_URL}/${text}`}
                 </a>
@@ -342,29 +322,18 @@ const Analytics = () => {
             {
               title: "Original URL",
               dataIndex: "full_url",
-              key: "full_url",
               ellipsis: true,
-              render: (text) => (
-                <Text ellipsis style={{ maxWidth: 350 }}>
-                  {text}
-                </Text>
-              ),
             },
             {
               title: "Clicks",
               dataIndex: "clicks",
-              key: "clicks",
               sorter: (a, b) => a.clicks - b.clicks,
-              defaultSortOrder: "descend",
-              width: 100,
-              render: (clicks) => <Tag>{clicks}</Tag>,
+              render: (clicks) => <Tag color="blue">{clicks}</Tag>,
             },
             {
               title: "Created",
               dataIndex: "createdAt",
-              key: "createdAt",
-              width: 140,
-              render: (date) => dayjs(date).format("MMM DD, YYYY"),
+              render: (d) => dayjs(d).format("MMM DD, YYYY"),
             },
           ]}
           dataSource={topUrls}
