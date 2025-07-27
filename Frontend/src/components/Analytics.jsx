@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getAnalytics } from "../api/analytics.api.js";
-import { useIsMobile } from "../hooks/isMobile";
+import { useIsMobile } from "../hooks/useIsMobile.js";
 import {
   Card,
   Row,
@@ -118,44 +118,46 @@ const Analytics = () => {
         Analytics Dashboard
       </Title>
 
-      <Card className="mb-6" bodyStyle={{ padding: 12 }}>
-        <Space
-          direction={isMobile ? "vertical" : "horizontal"}
-          size="middle"
-          align="center"
-          style={{ width: "100%", flexWrap: "wrap" }}
-        >
-          <RangePicker
-            value={dateRange}
-            onChange={setDateRange}
-            disabledDate={(current) =>
-              current && current > dayjs().endOf("day")
-            }
-            allowEmpty={[false, false]}
-            style={{ width: isMobile ? "100%" : "auto", minWidth: 280 }}
-            size={isMobile ? "middle" : "large"}
-          />
-          <Select
-            value={selectedUrl}
-            onChange={setSelectedUrl}
-            placeholder="Select URL"
-            showSearch
-            options={[
-              { label: "All URLs", value: "all" },
-              ...(analytics.urls || []).map(({ _id, short_url, clicks }) => ({
-                label: `${short_url} (${clicks} clicks)`,
-                value: _id,
-              })),
-            ]}
-            optionFilterProp="label"
-            filterOption={(input, option) =>
-              option.label.toLowerCase().includes(input.toLowerCase())
-            }
-            style={{ width: isMobile ? "100%" : 250 }}
-            size={isMobile ? "middle" : "large"}
-            popupMatchSelectWidth={false}
-          />
-        </Space>
+      <Card className="mb-6">
+        <div style={{ padding: 12 }}>
+          <Space
+            direction={isMobile ? "vertical" : "horizontal"}
+            size="middle"
+            align="center"
+            style={{ width: "100%", flexWrap: "wrap" }}
+          >
+            <RangePicker
+              value={dateRange}
+              onChange={setDateRange}
+              disabledDate={(current) =>
+                current && current > dayjs().endOf("day")
+              }
+              allowEmpty={[false, false]}
+              style={{ width: isMobile ? "100%" : "auto", minWidth: 280 }}
+              size={isMobile ? "middle" : "large"}
+            />
+            <Select
+              value={selectedUrl}
+              onChange={setSelectedUrl}
+              placeholder="Select URL"
+              showSearch
+              options={[
+                { label: "All URLs", value: "all" },
+                ...(analytics.urls || []).map(({ _id, short_url, clicks }) => ({
+                  label: `${short_url} (${clicks} clicks)`,
+                  value: _id,
+                })),
+              ]}
+              optionFilterProp="label"
+              filterOption={(input, option) =>
+                option.label.toLowerCase().includes(input.toLowerCase())
+              }
+              style={{ width: isMobile ? "100%" : 250 }}
+              size={isMobile ? "middle" : "large"}
+              popupMatchSelectWidth={false}
+            />
+          </Space>
+        </div>
       </Card>
 
       <Row
