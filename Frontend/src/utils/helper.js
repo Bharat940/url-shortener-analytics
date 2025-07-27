@@ -5,13 +5,20 @@ import { login } from "../store/slices/authSlice.js";
 export const checkAuth = async ({ context }) => {
   try {
     const { store, queryClient } = context;
-    const user = await queryClient.ensureQueryData({
+    const data = await queryClient.ensureQueryData({
       queryKey: ["currentUser"],
       queryFn: getCurrentUser,
     });
 
+    const user = data?.user;
+
     if (!user) {
-      return false;
+      throw redirect({
+        to: "/auth",
+        search: {
+          redirect: window.location.pathname,
+        },
+      });
     }
 
     store.dispatch(login(user));
@@ -26,7 +33,11 @@ export const checkAuth = async ({ context }) => {
     }
     return true;
   } catch (error) {
-    console.log(error);
-    return redirect({ to: "/auth" });
+    throw redirect({
+      to: "/auth",
+      search: {
+        redirect: window.location.pathname,
+      },
+    });
   }
 };
