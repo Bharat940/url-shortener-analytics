@@ -50,16 +50,28 @@ const Analytics = () => {
   ]);
   const [selectedUrl, setSelectedUrl] = useState("all");
 
+  const isValidRange =
+    Array.isArray(dateRange) && dateRange[0] != null && dateRange[1] != null;
+
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["analytics", dateRange, selectedUrl],
     queryFn: () =>
       getAnalytics({
-        startDate: dateRange[0].format("YYYY-MM-DD"),
-        endDate: dateRange[1].format("YYYY-MM-DD"),
+        start: dateRange[0].format("YYYY-MM-DD"),
+        end: dateRange[1].format("YYYY-MM-DD"),
         urlId: selectedUrl === "all" ? null : selectedUrl,
       }),
+    enabled: isValidRange,
     refetchInterval: 60000,
   });
+
+  const onDateRangeChange = (dates) => {
+    if (!dates || dates.length !== 2 || !dates[0] || !dates[1]) {
+      setDateRange([dayjs().subtract(30, "day"), dayjs()]);
+    } else {
+      setDateRange(dates);
+    }
+  };
 
   if (isLoading)
     return (
@@ -124,7 +136,7 @@ const Analytics = () => {
         >
           <RangePicker
             value={dateRange}
-            onChange={setDateRange}
+            onChange={onDateRangeChange}
             disabledDate={(current) =>
               current && current > dayjs().endOf("day")
             }
