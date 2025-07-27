@@ -1,9 +1,8 @@
 import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Avatar, Dropdown, Button, Switch, Tooltip } from "antd";
+import { Dropdown, Button, Switch, Tooltip } from "antd";
 import {
-  UserOutlined,
   LogoutOutlined,
   MenuOutlined,
   BulbOutlined,
@@ -122,12 +121,6 @@ const NavBar = () => {
                 trigger={["click"]}
               >
                 <div className="cursor-pointer flex items-center space-x-2 px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
-                  <Avatar
-                    size="small"
-                    src={user?.avatar}
-                    icon={!user?.avatar && <UserOutlined />}
-                    alt={user?.name || "User avatar"}
-                  />
                   <span className="text-gray-700 dark:text-gray-300 font-medium">
                     {user?.name || "User"}
                   </span>
