@@ -1,6 +1,6 @@
 import { createRootRoute } from "@tanstack/react-router";
 import { homePageRoute } from "./homepage";
-import { authRoute } from "./auth.routes";
+import { authRoute } from "./auth.routes.js";
 import { analyticsRoute } from "./analytics.routes.js";
 import { dashboardRoute } from "./dashboard.js";
 import RootLayout from "../RootLayout.jsx";

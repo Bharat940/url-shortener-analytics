@@ -1,43 +1,43 @@
 import { redirect } from "@tanstack/react-router";
 import { getCurrentUser } from "../api/user.api.js";
-import { login } from "../store/slices/authSlice.js";
+import { login, logout } from "../store/slices/authSlice.js";
 
 export const checkAuth = async ({ context }) => {
+  const { store } = context;
   try {
-    const { store, queryClient } = context;
-    const data = await queryClient.ensureQueryData({
-      queryKey: ["currentUser"],
-      queryFn: getCurrentUser,
-    });
-
-    const user = data?.user;
-
-    if (!user) {
+    const data = await getCurrentUser();
+    if (data?.user) {
+      store.dispatch(login(data.user));
+      return true;
+    } else {
+      store.dispatch(logout());
       throw redirect({
         to: "/auth",
-        search: {
-          redirect: window.location.pathname,
-        },
+        search: { redirect: window.location.pathname },
       });
     }
-
-    store.dispatch(login(user));
-    const { isAuthenticated } = store.getState().auth;
-    if (!isAuthenticated) {
-      throw redirect({
-        to: "/auth",
-        search: {
-          redirect: window.location.pathname,
-        },
-      });
-    }
-    return true;
-  } catch (error) {
+  } catch {
+    store.dispatch(logout());
     throw redirect({
       to: "/auth",
-      search: {
-        redirect: window.location.pathname,
-      },
+      search: { redirect: window.location.pathname },
     });
+  }
+};
+
+export const checkGuest = async ({ context }) => {
+  const { store } = context;
+  try {
+    const data = await getCurrentUser();
+    if (data?.user) {
+      store.dispatch(login(data.user));
+      throw redirect({ to: "/dashboard" });
+    } else {
+      store.dispatch(logout());
+      return true;
+    }
+  } catch {
+    store.dispatch(logout());
+    return true;
   }
 };

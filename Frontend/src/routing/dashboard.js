@@ -1,8 +1,8 @@
 import { createRoute } from "@tanstack/react-router";
-import { rootRoute } from "./routeTree";
+import { rootRoute } from "./routeTree.js";
 
-import Dashboard from "../pages/Dashboard";
-import { checkAuth } from "../utils/helper";
+import Dashboard from "../pages/Dashboard.jsx";
+import { checkAuth } from "../utils/helper.js";
 
 export const dashboardRoute = createRoute({
   getParentRoute: () => rootRoute,

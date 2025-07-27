@@ -1,7 +1,7 @@
 import { createRoute } from "@tanstack/react-router";
-import { rootRoute } from "./routeTree";
-import Analytics from "../components/Analytics";
-import { checkAuth } from "../utils/helper";
+import { rootRoute } from "./routeTree.js";
+import Analytics from "../components/Analytics.jsx";
+import { checkAuth } from "../utils/helper.js";
 
 export const analyticsRoute = createRoute({
   getParentRoute: () => rootRoute,

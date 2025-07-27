@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import LoginForm from "../components/LoginForm";
@@ -13,7 +13,7 @@ const AuthPage = () => {
   const navigate = useNavigate();
   const search = useSearch({ from: "/auth" });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isAuthenticated) {
       const redirectTo = search?.redirect || "/dashboard";
       navigate({ to: redirectTo });
