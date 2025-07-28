@@ -7,7 +7,9 @@ export const checkAuth = async ({ context }) => {
   try {
     const data = await getCurrentUser();
     if (data?.user) {
-      store.dispatch(login(data.user));
+      const token =
+        store.getState().auth.token || localStorage.getItem("token");
+      store.dispatch(login({ token, user: data.user }));
       return true;
     } else {
       store.dispatch(logout());

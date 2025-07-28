@@ -25,11 +25,13 @@ const RegisterForm = () => {
 
     try {
       const data = await registerUser(name, email, password);
-      dispatch(login(data.user));
+      localStorage.setItem("token_expiry", Date.now() + 24 * 60 * 60 * 1000);
+
+      dispatch(login({ token: data.token, user: data.user }));
+
       navigate({ to: "/dashboard" });
     } catch (err) {
       let errorMessage = "Registration failed. Please try again.";
-
       if (err?.response && err.response.data) {
         const responseData = err.response.data;
         if (typeof responseData === "string") {
@@ -47,7 +49,6 @@ const RegisterForm = () => {
       } else if (err?.message) {
         errorMessage = err.message;
       }
-
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -59,7 +60,6 @@ const RegisterForm = () => {
       <Title level={2} className="text-center mb-6">
         Create an Account
       </Title>
-
       {error && (
         <Alert
           type="error"
@@ -70,11 +70,11 @@ const RegisterForm = () => {
           showIcon
         />
       )}
-
       <Form
-        name="register_form"
+        name="login_form"
         layout="vertical"
         onFinish={onFinish}
+        onSubmitCapture={(e) => e.preventDefault()}
         autoComplete="off"
         requiredMark={false}
         onFieldsChange={() => error && setError(null)}

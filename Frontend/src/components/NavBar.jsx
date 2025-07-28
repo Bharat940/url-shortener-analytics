@@ -25,13 +25,11 @@ const NavBar = () => {
     try {
       setLoggingOut(true);
       await logoutUser();
-      dispatch(logout());
-      navigate({ to: "/" });
     } catch (error) {
       console.error("Logout error:", error);
+    } finally {
       dispatch(logout());
       navigate({ to: "/" });
-    } finally {
       setLoggingOut(false);
     }
   };

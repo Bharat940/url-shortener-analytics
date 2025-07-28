@@ -1,54 +1,37 @@
 import axios from "axios";
+import store from "../store/store";
+import { logout } from "../store/slices/authSlice";
 
 const baseURL = import.meta.env.VITE_APP_URL || "http://localhost:3000";
 
 const axiosInstance = axios.create({
   baseURL,
   timeout: 60000,
-  withCredentials: true,
+});
+
+axiosInstance.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
 });
 
 axiosInstance.interceptors.response.use(
-  (response) => {
-    return response;
-  },
+  (response) => response,
   (error) => {
-    if (error.response) {
-      const { status, data } = error.response;
-
-      switch (status) {
-        case 400:
-          console.error("Bad Request:", data);
-          break;
-        case 401:
-          console.error("Unauthorized:", data);
-          break;
-        case 403:
-          console.error("Forbidden:", data);
-          break;
-        case 404:
-          console.error("Not Found:", data);
-          break;
-        case 500:
-          console.error("Server Error:", data);
-          break;
-        default:
-          console.error(`Error (${status}):`, data);
-      }
-    } else if (error.request) {
-      console.error("Network Error: No response received", error.request);
-    } else {
-      console.error("Error:", error.message);
+    if (error.response?.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("token_expiry");
+      store.dispatch(logout());
     }
-
     return Promise.reject({
       message:
-        error.response?.data?.message ||
-        error.message ||
-        "Unknown error occurred",
+        error.response?.data?.message || error.message || "Unknown error",
       status: error.response?.status,
       data: error.response?.data,
     });
   }
 );
+
 export default axiosInstance;

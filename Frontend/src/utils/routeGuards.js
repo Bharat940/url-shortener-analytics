@@ -2,13 +2,12 @@ import { redirect } from "@tanstack/react-router";
 import store from "../store/store.js";
 
 export const checkAuth = () => {
+  const token = localStorage.getItem("token");
   const { isAuthenticated } = store.getState().auth;
-  if (!isAuthenticated) {
+  if (!isAuthenticated || !token) {
     throw redirect({
       to: "/auth",
-      search: {
-        redirect: window.location.pathname,
-      },
+      search: { redirect: window.location.pathname },
     });
   }
 };

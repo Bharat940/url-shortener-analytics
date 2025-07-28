@@ -3,27 +3,48 @@ import { useDispatch } from "react-redux";
 import { login, logout } from "./store/slices/authSlice.js";
 import { getCurrentUser } from "./api/user.api";
 import NavBar from "./components/NavBar";
-import { Outlet } from "@tanstack/react-router";
+import { Outlet, useNavigate } from "@tanstack/react-router";
 import { Spin } from "antd";
 
 const RootLayout = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [authChecked, setAuthChecked] = useState(false);
 
   useEffect(() => {
-    const fetchUser = async () => {
+    const checkAuth = async () => {
+      const token = localStorage.getItem("token");
+      const expiry = localStorage.getItem("token_expiry");
+
+      if (!token || !expiry || Date.now() > parseInt(expiry, 10)) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("token_expiry");
+        dispatch(logout());
+        navigate({ to: "/auth" });
+        setAuthChecked(true);
+        return;
+      }
+
       try {
         const data = await getCurrentUser();
-        if (data?.user) dispatch(login(data.user));
-        else dispatch(logout());
+        if (data?.user) {
+          const existingToken = localStorage.getItem("token");
+          dispatch(login({ token: existingToken, user: data.user }));
+        } else {
+          throw new Error("Invalid token");
+        }
       } catch {
+        localStorage.removeItem("token");
+        localStorage.removeItem("token_expiry");
         dispatch(logout());
+        navigate({ to: "/auth" });
       } finally {
         setAuthChecked(true);
       }
     };
-    fetchUser();
-  }, [dispatch]);
+
+    checkAuth();
+  }, [dispatch, navigate]);
 
   if (!authChecked) {
     return (
