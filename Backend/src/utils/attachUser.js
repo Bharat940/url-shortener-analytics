@@ -1,18 +1,20 @@
-import { verifyToken } from "./helper.js";
+import { verifyToken } from "../utils/helper.js";
 import { findUserById } from "../dao/user.js";
 
 export const attachUser = async (req, res, next) => {
-  const token = req.cookies.accessToken;
-
-  if (!token) return next();
-
   try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return next();
+    }
+
+    const token = authHeader.split(" ")[1];
     const userId = verifyToken(token);
     const user = await findUserById(userId);
 
-    if (!user) return next();
-
-    req.user = user;
+    if (user) {
+      req.user = user;
+    }
   } catch (err) {
     console.error("Invalid token:", err.message);
   }
