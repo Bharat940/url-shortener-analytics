@@ -42,6 +42,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(attachUser);
 
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });
+});
+
 app.use("/api/user", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/analytics", analyticsRoutes);
