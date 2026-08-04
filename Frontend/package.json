@@ -1,7 +1,7 @@
 {
-  "name": "url_shortner",
-  "private": true,
-  "version": "0.0.0",
+  "name": "sniplink-frontend",
+  "version": "1.0.0",
+  "description": "Modern MERN URL Shortener & Real-Time Analytics Dashboard built with React 18, Vite 6, TailwindCSS v4, and custom OKLCH design system.",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -9,6 +9,18 @@
     "lint": "eslint .",
     "preview": "vite preview"
   },
+  "keywords": [
+    "react",
+    "vite",
+    "tailwindcss",
+    "oklch",
+    "analytics",
+    "url-shortener",
+    "recharts",
+    "tanstack-router"
+  ],
+  "author": "Bharat Dangi",
+  "license": "MIT",
   "dependencies": {
     "@ant-design/icons": "^5.6.1",
     "@reduxjs/toolkit": "^2.8.2",

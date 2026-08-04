@@ -45,7 +45,8 @@ export const redirectFromShortUrl = wrapAsync(async (req, res) => {
   const url = await getShortUrl(id, req);
 
   if (url) {
-    res.redirect(url.full_url);
+    res.setHeader("X-Robots-Tag", "noindex, follow");
+    res.redirect(302, url.full_url);
   } else {
     res.status(404).send("Not found");
   }

@@ -1,19 +1,27 @@
 {
-  "name": "backend",
+  "name": "sniplink-backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "High-throughput Node.js + Express backend with hybrid Redis rate limiting, JWT auth, QR generator, and real-time click analytics.",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
+    "benchmark": "node benchmark.js",
     "build": "echo 'Build completed'"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "url-shortener",
+    "redis",
+    "rate-limiter",
+    "express",
+    "mongodb",
+    "qr-code",
+    "analytics"
+  ],
+  "author": "Bharat Dangi",
+  "license": "MIT",
   "type": "module",
   "dependencies": {
-    "@tanstack/react-router": "^1.121.27",
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.2",
     "cookie-parser": "^1.4.7",
