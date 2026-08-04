@@ -3,7 +3,7 @@ import ShortUrl from "../models/shortUrl.model.js";
 import moment from "moment";
 
 export const getAnalyticsService = async (userId, filters = {}) => {
-  const { startDate, endDate, urlId, period = "last30days" } = filters;
+  const { startDate, endDate, urlId } = filters;
 
   const urlQuery = { user: userId };
   if (urlId && urlId !== "all") {
@@ -40,7 +40,7 @@ export const getAnalyticsService = async (userId, filters = {}) => {
   const avgClicksPerUrl =
     totalUrls > 0 ? (totalClicks / totalUrls).toFixed(1) : 0;
 
-  const clickTrends = await Click.aggregate([
+  const clickTrendsRaw = await Click.aggregate([
     {
       $match: {
         url: { $in: urlIds },
@@ -64,6 +64,47 @@ export const getAnalyticsService = async (userId, filters = {}) => {
       },
     },
   ]);
+
+  // Fill in missing dates for smooth trend visualizer
+  const trendsMap = new Map();
+  clickTrendsRaw.forEach((item) => {
+    trendsMap.set(item.date, item.clicks);
+  });
+
+  const startM = startDate ? moment(startDate) : moment().subtract(30, "days");
+  const endM = endDate ? moment(endDate) : moment();
+  const daysDiff = Math.max(1, endM.diff(startM, "days"));
+
+  const filledClickTrends = [];
+  if (daysDiff <= 60) {
+    let curr = startM.clone();
+    while (curr.isBefore(endM) || curr.isSame(endM, "day")) {
+      const dateStr = curr.format("YYYY-MM-DD");
+      filledClickTrends.push({
+        date: dateStr,
+        clicks: trendsMap.get(dateStr) || 0,
+      });
+      curr.add(1, "day");
+    }
+  } else {
+    const step = Math.max(1, Math.floor(daysDiff / 30));
+    let curr = startM.clone();
+    while (curr.isBefore(endM) || curr.isSame(endM, "day")) {
+      const dateStr = curr.format("YYYY-MM-DD");
+      let intervalClicks = 0;
+      for (let i = 0; i < step; i++) {
+        const dStr = curr.clone().add(i, "day").format("YYYY-MM-DD");
+        if (trendsMap.has(dStr)) {
+          intervalClicks += trendsMap.get(dStr);
+        }
+      }
+      filledClickTrends.push({
+        date: dateStr,
+        clicks: intervalClicks,
+      });
+      curr.add(step, "day");
+    }
+  }
 
   const geoData = await Click.aggregate([
     {
@@ -138,7 +179,6 @@ export const getAnalyticsService = async (userId, filters = {}) => {
 
   const topUrls = userUrls
     .sort((a, b) => b.clicks - a.clicks)
-    .slice(0, 10)
     .map((url) => ({
       _id: url._id,
       short_url: url.short_url,
@@ -162,7 +202,7 @@ export const getAnalyticsService = async (userId, filters = {}) => {
       activeUrls,
       avgClicksPerUrl: parseFloat(avgClicksPerUrl),
     },
-    clickTrends,
+    clickTrends: filledClickTrends,
     geoData,
     deviceData,
     browserData,

@@ -7,13 +7,13 @@ import { Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import { Spin } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 
+const PROTECTED_ROUTES = ["/dashboard", "/analytics"];
+
 const RootLayout = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
   const [authChecked, setAuthChecked] = useState(false);
-
-  const protectedRoutes = ["/dashboard", "/analytics"];
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -25,7 +25,7 @@ const RootLayout = () => {
         localStorage.removeItem("token_expiry");
         dispatch(logout());
 
-        if (protectedRoutes.includes(location.pathname)) {
+        if (PROTECTED_ROUTES.includes(location.pathname)) {
           navigate({ to: "/auth", search: { redirect: location.pathname } });
         }
 
@@ -46,7 +46,7 @@ const RootLayout = () => {
         localStorage.removeItem("token_expiry");
         dispatch(logout());
 
-        if (protectedRoutes.includes(location.pathname)) {
+        if (PROTECTED_ROUTES.includes(location.pathname)) {
           navigate({ to: "/auth", search: { redirect: location.pathname } });
         }
       } finally {
@@ -83,7 +83,7 @@ const RootLayout = () => {
   }
 
   return (
-    <div className="bg-gray-50 dark:bg-gray-900 min-h-screen transition-all duration-300">
+    <div className="bg-background text-foreground min-h-screen transition-colors duration-300">
       <NavBar />
       <div className="pt-16">
         <Outlet />

@@ -25,7 +25,7 @@ const LoginForm = () => {
 
       navigate({ to: "/dashboard" });
     } catch (err) {
-      let errorMessage = "Login failed. Please try again.";
+      let errorMessage = "Unable to sign in. Please check your credentials.";
       if (err?.response && err.response.data) {
         const responseData = err.response.data;
         if (typeof responseData === "string") {
@@ -37,8 +37,6 @@ const LoginForm = () => {
           typeof responseData.message === "string"
         ) {
           errorMessage = responseData.message;
-        } else {
-          errorMessage = JSON.stringify(responseData);
         }
       } else if (err?.message) {
         errorMessage = err.message;
@@ -50,12 +48,12 @@ const LoginForm = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto bg-white dark:bg-gray-800 text-black dark:text-white p-8 rounded-xl shadow-md transition-all duration-300">
+    <div className="w-full text-foreground p-2">
       <Title
-        level={2}
-        className="text-center mb-6 text-gray-900 dark:text-gray-100"
+        level={3}
+        className="text-center mb-6 text-foreground font-bold"
       >
-        Login
+        Welcome Back
       </Title>
       {error && (
         <Alert
@@ -77,26 +75,26 @@ const LoginForm = () => {
         onFieldsChange={() => error && setError(null)}
       >
         <Form.Item
-          label="Email"
+          label="Email Address"
           name="email"
           rules={[
-            { required: true, message: "Please input your email!" },
-            { type: "email", message: "Please enter a valid email!" },
+            { required: true, message: "Please enter your email address" },
+            { type: "email", message: "Please enter a valid email address" },
           ]}
         >
-          <Input size="large" placeholder="email@example.com" />
+          <Input size="large" placeholder="name@example.com" className="rounded-md" />
         </Form.Item>
 
         <Form.Item
           label="Password"
           name="password"
-          rules={[{ required: true, message: "Please input your password!" }]}
+          rules={[{ required: true, message: "Please enter your password" }]}
         >
-          <Input.Password size="large" placeholder="Password" />
+          <Input.Password size="large" placeholder="Enter your password" className="rounded-md" />
         </Form.Item>
 
-        <Form.Item>
-          <Button type="primary" htmlType="submit" loading={loading} block>
+        <Form.Item className="mt-6 mb-0">
+          <Button type="primary" htmlType="submit" loading={loading} block className="btn-primary h-11 text-base font-semibold">
             Sign In
           </Button>
         </Form.Item>

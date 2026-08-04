@@ -12,7 +12,15 @@ import {
   Checkbox,
 } from "antd";
 import { normalizeUrl, isValidUrl } from "../utils/urlHelper.js";
-import { QrcodeOutlined, DownloadOutlined } from "@ant-design/icons";
+import {
+  QrcodeOutlined,
+  DownloadOutlined,
+  LinkOutlined,
+  TagOutlined,
+  CopyOutlined,
+  CheckOutlined,
+  ArrowRightOutlined,
+} from "@ant-design/icons";
 import { useSelector } from "react-redux";
 
 const ShortenUrlForm = () => {
@@ -36,7 +44,7 @@ const ShortenUrlForm = () => {
       return false;
     }
     if (!isValidUrl(normalized)) {
-      setUrlError("Please enter a valid URL (must start with http/https)");
+      setUrlError("Please enter a valid URL (e.g. https://example.com)");
       return false;
     }
     setUrlError(null);
@@ -72,7 +80,7 @@ const ShortenUrlForm = () => {
         });
       }
 
-      message.success("URL created successfully!");
+      message.success("URL shortened successfully!");
     } catch (err) {
       setError(err.message || "Failed to shorten URL");
     } finally {
@@ -84,7 +92,7 @@ const ShortenUrlForm = () => {
     if (result?.short_url) {
       navigator.clipboard.writeText(result.short_url);
       setCopied(true);
-      message.success("Copied to clipboard!");
+      message.success("Short URL copied!");
       setTimeout(() => setCopied(false), 2000);
     }
   };
@@ -103,13 +111,11 @@ const ShortenUrlForm = () => {
   };
 
   const qrPopoverContent = result?.qrcode_image ? (
-    <div className="text-center p-3 bg-white dark:bg-gray-800 rounded-lg w-max max-w-[250px]">
+    <div className="text-center p-3 bg-card text-card-foreground rounded-lg w-max max-w-[220px]">
       <img
         src={result.qrcode_image}
         alt="QR Code"
-        className={`mx-auto mb-3 rounded-lg ${
-          isMobile ? "w-32 h-32" : "w-36 h-36"
-        }`}
+        className="mx-auto mb-3 rounded-lg border border-border w-32 h-32"
         style={{ height: "auto" }}
       />
       <Button
@@ -117,136 +123,116 @@ const ShortenUrlForm = () => {
         size="small"
         type="primary"
         onClick={downloadQrCode}
-        className="w-full"
-        aria-label="Download QR Code"
+        className="w-full btn-primary font-semibold"
       >
-        Download QR Code
+        Download PNG
       </Button>
     </div>
   ) : (
-    <div className="text-center p-3 text-gray-500 dark:text-gray-400">
+    <div className="text-center p-2 text-xs text-muted-foreground">
       No QR Code Available
     </div>
   );
 
   return (
-    <div className="bg-white dark:bg-gray-800 text-black dark:text-white p-6 rounded-xl shadow-md transition-colors duration-300 w-full max-w-md mx-auto">
-      <h2 className="mb-4 text-xl font-bold">Shorten URL</h2>
+    <div className="w-full space-y-4">
+      <div>
+        <h3 className="text-lg font-bold text-foreground">Shorten URL</h3>
+        <p className="text-xs text-muted-foreground">
+          Enter a long web link to generate a clean short URL.
+        </p>
+      </div>
 
-      <Input
-        placeholder="Enter URL to shorten"
-        value={url}
-        onChange={handleChange}
-        size="large"
-        allowClear
-        className="mb-2"
-        type="url"
-      />
-      {urlError && (
-        <Alert message={urlError} type="error" showIcon className="mb-4" />
-      )}
+      <div className="space-y-3">
+        <div>
+          <Input
+            prefix={<LinkOutlined className="text-muted-foreground mr-1" />}
+            placeholder="https://example.com/very-long-url-path"
+            value={url}
+            onChange={handleChange}
+            size="large"
+            allowClear
+            type="url"
+            className="rounded-md"
+          />
+          {urlError && (
+            <Alert message={urlError} type="error" showIcon className="mt-2 text-xs" />
+          )}
+        </div>
 
-      {isAuthenticated && (
-        <Input
-          placeholder="Custom Slug (Optional)"
-          value={customSlug}
-          onChange={(e) => setCustomSlug(e.target.value)}
-          size="large"
-          allowClear
-          className="mb-4"
-        />
-      )}
+        {isAuthenticated && (
+          <Input
+            prefix={<TagOutlined className="text-muted-foreground mr-1" />}
+            placeholder="Custom slug (e.g. my-custom-link)"
+            value={customSlug}
+            onChange={(e) => setCustomSlug(e.target.value)}
+            size="large"
+            allowClear
+            className="rounded-md"
+          />
+        )}
 
-      {isAuthenticated && (
-        <Checkbox
-          checked={generateQR}
-          onChange={(e) => setGenerateQR(e.target.checked)}
-          className="mb-4 text-gray-700 dark:text-gray-300"
+        {isAuthenticated && (
+          <div className="pt-1">
+            <Checkbox
+              checked={generateQR}
+              onChange={(e) => setGenerateQR(e.target.checked)}
+              className="text-xs text-muted-foreground font-medium"
+            >
+              Generate dynamic QR code alongside short URL
+            </Checkbox>
+          </div>
+        )}
+
+        <Button
+          type="primary"
+          onClick={handleSubmit}
+          loading={loading}
+          block
+          className="btn-primary h-11 text-base font-semibold flex items-center justify-center gap-2"
         >
-          Generate QR Code with URL
-        </Checkbox>
-      )}
-
-      <Button type="primary" onClick={handleSubmit} loading={loading} block>
-        Shorten URL
-      </Button>
+          Shorten URL <ArrowRightOutlined className="text-xs" />
+        </Button>
+      </div>
 
       {error && (
-        <Alert message={error} type="error" showIcon className="mt-4" />
+        <Alert message={error} type="error" showIcon className="mt-3 text-xs" />
       )}
 
       {result && (
-        <div className="mt-6">
-          <div className="flex flex-col sm:flex-row gap-2">
-            <Input value={result.short_url} readOnly className="flex-1" />
-            <div className="flex gap-2">
-              <Button
-                type={copied ? "default" : "default"}
-                onClick={handleCopy}
-                className={
-                  copied ? "bg-green-500 text-white border-green-500" : ""
-                }
-                aria-label="Copy shortened URL"
-              >
-                {copied ? "Copied!" : "Copy"}
-              </Button>
+        <div className="mt-4 p-4 rounded-xl bg-secondary/80 border border-border space-y-3">
+          <div className="text-xs font-bold text-foreground uppercase tracking-wider">
+            Your Shortened Link:
+          </div>
 
+          <div className="flex items-center gap-2">
+            <Input
+              value={result.short_url}
+              readOnly
+              className="font-semibold text-primary rounded-md flex-1"
+            />
+            <Button
+              type={copied ? "default" : "primary"}
+              icon={copied ? <CheckOutlined /> : <CopyOutlined />}
+              onClick={handleCopy}
+              className={copied ? "bg-emerald-600 text-white border-emerald-600 font-semibold" : "btn-primary font-semibold"}
+            >
+              {copied ? "Copied" : "Copy"}
+            </Button>
+
+            {result?.qrcode_image && (
               <Popover
                 content={qrPopoverContent}
-                title={
-                  <span className="text-gray-900 dark:text-gray-100">
-                    QR Code
-                  </span>
-                }
-                trigger={
-                  result?.qrcode_image ? (isMobile ? "click" : "hover") : []
-                }
-                placement={isMobile ? "topLeft" : "leftTop"}
-                destroyPopupOnHide
-                align={{
-                  offset: isMobile ? [0, -10] : [-10, 0],
-                }}
+                title={<span className="font-bold text-xs">QR Preview</span>}
+                trigger={isMobile ? "click" : "hover"}
+                placement="topRight"
               >
-                <Tooltip
-                  title={
-                    result?.qrcode_image
-                      ? "Show QR Code"
-                      : "No QR Code available"
-                  }
-                  mouseEnterDelay={0.1}
-                  mouseLeaveDelay={0.1}
-                >
-                  <Button
-                    icon={
-                      <QrcodeOutlined
-                        className={`transition-colors duration-200 ${
-                          result?.qrcode_image
-                            ? "text-blue-600 dark:text-blue-400"
-                            : "text-gray-400 dark:text-gray-500"
-                        }`}
-                      />
-                    }
-                    className={`flex items-center justify-center ${
-                      result?.qrcode_image
-                        ? "hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer"
-                        : "cursor-not-allowed opacity-60"
-                    }`}
-                    disabled={!result?.qrcode_image}
-                    aria-label="Show QR Code"
-                  />
-                </Tooltip>
+                <Button
+                  icon={<QrcodeOutlined className="text-primary text-base" />}
+                  className="flex items-center justify-center border-border hover:bg-secondary"
+                />
               </Popover>
-
-              <Button
-                icon={<DownloadOutlined />}
-                onClick={downloadQrCode}
-                disabled={!result?.qrcode_image}
-                aria-label="Download QR Code"
-                className={`flex items-center justify-center ${
-                  !result?.qrcode_image ? "opacity-60 cursor-not-allowed" : ""
-                }`}
-              />
-            </div>
+            )}
           </div>
         </div>
       )}

@@ -2,7 +2,8 @@ import React from "react";
 import { useSelector } from "react-redux";
 import ShortenUrlForm from "./ShortenUrlForm";
 import QrCodeForm from "./QrCodeForm";
-import { Card, Alert } from "antd";
+import { Alert } from "antd";
+import { SafetyCertificateOutlined } from "@ant-design/icons";
 
 const UrlForm = React.memo(() => {
   const { isAuthenticated } = useSelector((state) => state.auth);
@@ -11,21 +12,24 @@ const UrlForm = React.memo(() => {
     <div className="w-full max-w-7xl mx-auto space-y-6">
       {!isAuthenticated && (
         <Alert
-          type="info"
-          message="Guest users can create up to 20 combined short URLs and QR codes per day. Register to unlock custom slugs and unlimited generation."
-          showIcon
-          className="text-center"
-          banner
+          type="warning"
+          message={
+            <span className="text-xs sm:text-sm">
+              <SafetyCertificateOutlined className="mr-1 text-amber-500" />
+              <strong>Guest Mode:</strong> You can create up to 20 combined short URLs and QR codes per day. Register to unlock custom slugs and unlimited link shortening.
+            </span>
+          }
+          className="rounded-lg border border-amber-500/30 bg-amber-500/10 text-foreground"
         />
       )}
 
-      <div className="grid gap-8 md:grid-cols-2">
-        <Card className="w-full rounded-xl shadow-lg">
+      <div className="grid gap-6 md:grid-cols-2">
+        <div className="ui-card p-6 shadow-sm">
           <ShortenUrlForm />
-        </Card>
-        <Card className="w-full rounded-xl shadow-lg">
+        </div>
+        <div className="ui-card p-6 shadow-sm">
           <QrCodeForm />
-        </Card>
+        </div>
       </div>
     </div>
   );

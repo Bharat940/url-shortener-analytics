@@ -43,8 +43,6 @@ const RegisterForm = () => {
           typeof responseData.message === "string"
         ) {
           errorMessage = responseData.message;
-        } else {
-          errorMessage = JSON.stringify(responseData);
         }
       } else if (err?.message) {
         errorMessage = err.message;
@@ -56,9 +54,9 @@ const RegisterForm = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto bg-white dark:bg-gray-800 text-black dark:text-white p-8 rounded-xl shadow-md transition-colors duration-300">
-      <Title level={2} className="text-center mb-6">
-        Create an Account
+    <div className="w-full text-foreground p-2">
+      <Title level={3} className="text-center mb-6 text-foreground font-bold">
+        Create Your Account
       </Title>
       {error && (
         <Alert
@@ -71,7 +69,7 @@ const RegisterForm = () => {
         />
       )}
       <Form
-        name="login_form"
+        name="register_form"
         layout="vertical"
         onFinish={onFinish}
         onSubmitCapture={(e) => e.preventDefault()}
@@ -82,36 +80,36 @@ const RegisterForm = () => {
         <Form.Item
           label="Full Name"
           name="name"
-          rules={[{ required: true, message: "Please input your full name!" }]}
+          rules={[{ required: true, message: "Please enter your full name" }]}
         >
-          <Input size="large" placeholder="Full Name" />
+          <Input size="large" placeholder="Your full name" className="rounded-md" />
         </Form.Item>
 
         <Form.Item
-          label="Email"
+          label="Email Address"
           name="email"
           rules={[
-            { required: true, message: "Please input your email!" },
-            { type: "email", message: "Please enter a valid email!" },
+            { required: true, message: "Please enter your email address" },
+            { type: "email", message: "Please enter a valid email address" },
           ]}
         >
-          <Input size="large" placeholder="email@example.com" />
+          <Input size="large" placeholder="name@example.com" className="rounded-md" />
         </Form.Item>
 
         <Form.Item
           label="Password"
           name="password"
           rules={[
-            { required: true, message: "Please input your password!" },
+            { required: true, message: "Please enter your password" },
             { min: 6, message: "Password must be at least 6 characters" },
           ]}
           hasFeedback
         >
-          <Input.Password size="large" placeholder="Password" />
+          <Input.Password size="large" placeholder="Create a secure password" className="rounded-md" />
         </Form.Item>
 
-        <Form.Item>
-          <Button type="primary" htmlType="submit" loading={loading} block>
+        <Form.Item className="mt-6 mb-0">
+          <Button type="primary" htmlType="submit" loading={loading} block className="btn-primary h-11 text-base font-semibold">
             Create Account
           </Button>
         </Form.Item>

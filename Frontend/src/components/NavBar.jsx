@@ -1,13 +1,18 @@
 import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { Link, useNavigate } from "@tanstack/react-router";
-import { Dropdown, Button, Switch, Tooltip } from "antd";
+import { Link, useNavigate, useLocation } from "@tanstack/react-router";
+import { Dropdown, Button, Switch, Tooltip, Avatar } from "antd";
 import {
   LogoutOutlined,
   MenuOutlined,
-  BulbOutlined,
-  BulbFilled,
-  SettingOutlined,
+  CloseOutlined,
+  SunOutlined,
+  MoonOutlined,
+  DashboardOutlined,
+  BarChartOutlined,
+  LinkOutlined,
+  UserOutlined,
+  ArrowRightOutlined,
 } from "@ant-design/icons";
 import { logout } from "../store/slices/authSlice.js";
 import { toggleTheme } from "../store/slices/themeSlice.js";
@@ -18,6 +23,7 @@ const NavBar = () => {
   const theme = useSelector((state) => state.theme.mode);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const [menuVisible, setMenuVisible] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
 
@@ -34,15 +40,17 @@ const NavBar = () => {
     }
   };
 
+  const isActive = (path) => location.pathname === path;
+
   const dropdownMenuItems = [
     {
       key: "profile",
       label: (
-        <div className="px-2 py-1">
-          <div className="font-medium text-gray-900 dark:text-gray-100">
-            {user?.name || "User"}
+        <div className="px-3 py-2">
+          <div className="font-semibold text-foreground">
+            {user?.name || "Member Account"}
           </div>
-          <div className="text-sm text-gray-500 dark:text-gray-400">
+          <div className="text-xs text-muted-foreground">
             {user?.email}
           </div>
         </div>
@@ -52,122 +60,169 @@ const NavBar = () => {
     { type: "divider" },
     {
       key: "dashboard",
-      label: <Link to="/dashboard">Dashboard</Link>,
-      icon: <SettingOutlined />,
+      label: <Link to="/dashboard" className="font-medium">My Links Dashboard</Link>,
+      icon: <DashboardOutlined className="text-primary" />,
+    },
+    {
+      key: "analytics",
+      label: <Link to="/analytics" className="font-medium">Analytics Overview</Link>,
+      icon: <BarChartOutlined className="text-primary" />,
     },
     { type: "divider" },
     {
       key: "logout",
-      label: loggingOut ? "Logging out..." : "Logout",
-      icon: <LogoutOutlined />,
+      label: loggingOut ? "Signing out..." : "Sign Out",
+      icon: <LogoutOutlined className="text-destructive" />,
       onClick: handleLogout,
       disabled: loggingOut,
     },
   ];
 
   return (
-    <nav className="bg-white dark:bg-gray-900 shadow-sm fixed w-full z-50 top-0 left-0 transition-colors duration-300">
+    <nav className="ui-nav fixed w-full z-50 top-0 left-0 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
+          {/* Logo Brand */}
           <div className="flex-shrink-0 flex items-center">
             <Link
               to="/"
-              className="text-xl font-bold text-blue-600 dark:text-blue-400 leading-none hover:underline"
+              className="flex items-center gap-2 group transition-transform duration-200 hover:scale-105"
             >
-              URL Shortener
+              <div className="w-9 h-9 rounded-lg bg-primary text-primary-foreground flex items-center justify-center font-bold">
+                <LinkOutlined className="text-lg rotate-45" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-xl font-extrabold tracking-tight text-foreground leading-none">
+                  SnipLink
+                </span>
+                <span className="text-[10px] font-semibold text-muted-foreground tracking-wider uppercase">
+                  URL & QR Platform
+                </span>
+              </div>
             </Link>
           </div>
 
-          <div className="hidden md:flex md:items-center md:space-x-4">
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex md:items-center md:space-x-2">
             <Link
               to="/"
-              className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium"
+              className={`px-4 py-2 rounded-md text-sm font-semibold transition-colors duration-150 ${
+                isActive("/")
+                  ? "bg-secondary text-secondary-foreground"
+                  : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
+              }`}
             >
               Home
             </Link>
+
             {isAuthenticated && (
               <>
                 <Link
                   to="/dashboard"
-                  className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium"
+                  className={`px-4 py-2 rounded-md text-sm font-semibold transition-colors duration-150 flex items-center gap-1.5 ${
+                    isActive("/dashboard")
+                      ? "bg-secondary text-secondary-foreground"
+                      : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
+                  }`}
                 >
-                  Dashboard
+                  <DashboardOutlined /> Dashboard
                 </Link>
                 <Link
                   to="/analytics"
-                  className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium"
+                  className={`px-4 py-2 rounded-md text-sm font-semibold transition-colors duration-150 flex items-center gap-1.5 ${
+                    isActive("/analytics")
+                      ? "bg-secondary text-secondary-foreground"
+                      : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
+                  }`}
                 >
-                  Analytics
+                  <BarChartOutlined /> Analytics
                 </Link>
               </>
             )}
 
-            <Tooltip title="Toggle Dark/Light Mode">
-              <Switch
-                checked={theme === "dark"}
-                onChange={() => dispatch(toggleTheme())}
-                checkedChildren={<BulbFilled />}
-                unCheckedChildren={<BulbOutlined />}
+            <div className="h-5 w-[1px] bg-border mx-2" />
+
+            {/* Theme Switcher */}
+            <Tooltip title={theme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"}>
+              <button
+                onClick={() => dispatch(toggleTheme())}
+                className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors duration-150"
                 aria-label="Toggle Theme"
-              />
+              >
+                {theme === "dark" ? (
+                  <SunOutlined className="text-amber-400 text-lg" />
+                ) : (
+                  <MoonOutlined className="text-primary text-lg" />
+                )}
+              </button>
             </Tooltip>
 
+            {/* Auth Button or User Menu */}
             {isAuthenticated ? (
               <Dropdown
                 menu={{ items: dropdownMenuItems }}
                 placement="bottomRight"
                 trigger={["click"]}
               >
-                <div className="cursor-pointer flex items-center space-x-2 px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
-                  <span className="text-gray-700 dark:text-gray-300 font-medium">
-                    {user?.name || "User"}
+                <button className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-border hover:bg-secondary transition-colors duration-150">
+                  <Avatar
+                    size="small"
+                    icon={<UserOutlined />}
+                    className="bg-primary text-primary-foreground"
+                  />
+                  <span className="text-sm font-semibold text-foreground max-w-[120px] truncate">
+                    {user?.name || "Account"}
                   </span>
-                </div>
+                </button>
               </Dropdown>
             ) : (
-              <>
+              <div className="flex items-center gap-2 ml-2">
                 <Link
                   to="/auth"
-                  className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium"
+                  className="px-4 py-2 text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors duration-150"
                 >
-                  Login
+                  Sign In
                 </Link>
                 <Link
                   to="/auth"
-                  className="ml-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-3 py-2 rounded-md text-sm font-semibold"
+                  className="btn-primary text-sm font-semibold px-4 py-2 flex items-center gap-1.5"
                 >
-                  Register
+                  Get Started <ArrowRightOutlined className="text-xs" />
                 </Link>
-              </>
+              </div>
             )}
           </div>
 
-          <div className="flex md:hidden items-center space-x-2">
-            <Tooltip title="Toggle Dark/Light Mode">
-              <Switch
-                checked={theme === "dark"}
-                onChange={() => dispatch(toggleTheme())}
-                checkedChildren={<BulbFilled />}
-                unCheckedChildren={<BulbOutlined />}
-                aria-label="Toggle Theme"
-                size="small"
-              />
-            </Tooltip>
+          {/* Mobile menu button */}
+          <div className="flex md:hidden items-center gap-2">
+            <button
+              onClick={() => dispatch(toggleTheme())}
+              className="p-2 rounded-md text-muted-foreground"
+            >
+              {theme === "dark" ? (
+                <SunOutlined className="text-amber-400 text-lg" />
+              ) : (
+                <MoonOutlined className="text-primary text-lg" />
+              )}
+            </button>
             <Button
               type="text"
-              icon={<MenuOutlined />}
+              icon={menuVisible ? <CloseOutlined /> : <MenuOutlined />}
               onClick={() => setMenuVisible(!menuVisible)}
-              aria-label="Toggle mobile menu"
+              className="text-foreground"
             />
           </div>
         </div>
       </div>
 
+      {/* Mobile Drawer Navigation */}
       {menuVisible && (
-        <div className="md:hidden px-2 pt-2 pb-3 space-y-1 bg-white dark:bg-gray-900 shadow-md transition-colors duration-300">
+        <div className="md:hidden px-4 pt-3 pb-6 space-y-2 bg-background border-b border-border animate-in fade-in slide-in-from-top-2 duration-200">
           <Link
             to="/"
-            className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400"
+            className={`block px-4 py-2.5 rounded-md text-base font-semibold ${
+              isActive("/") ? "bg-secondary text-secondary-foreground" : "text-muted-foreground"
+            }`}
             onClick={() => setMenuVisible(false)}
           >
             Home
@@ -176,27 +231,32 @@ const NavBar = () => {
             <>
               <Link
                 to="/dashboard"
-                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400"
+                className={`block px-4 py-2.5 rounded-md text-base font-semibold ${
+                  isActive("/dashboard") ? "bg-secondary text-secondary-foreground" : "text-muted-foreground"
+                }`}
                 onClick={() => setMenuVisible(false)}
               >
                 Dashboard
               </Link>
               <Link
                 to="/analytics"
-                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400"
+                className={`block px-4 py-2.5 rounded-lg text-base font-semibold ${
+                  isActive("/analytics") ? "bg-secondary text-secondary-foreground" : "text-muted-foreground"
+                }`}
                 onClick={() => setMenuVisible(false)}
               >
                 Analytics
               </Link>
             </>
           )}
+
           {isAuthenticated ? (
-            <>
-              <div className="px-3 py-2 border-t border-gray-200 dark:border-gray-700 mt-2 pt-2">
-                <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                  {user?.name || "User"}
+            <div className="pt-3 border-t border-border space-y-2">
+              <div className="px-4 py-2 bg-secondary rounded-md">
+                <div className="text-sm font-semibold text-foreground">
+                  {user?.name || "Member"}
                 </div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">
+                <div className="text-xs text-muted-foreground">
                   {user?.email}
                 </div>
               </div>
@@ -206,28 +266,28 @@ const NavBar = () => {
                   setMenuVisible(false);
                 }}
                 disabled={loggingOut}
-                className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 disabled:opacity-50"
+                className="w-full text-left px-4 py-2.5 rounded-md text-base font-semibold text-destructive hover:bg-destructive/10 transition-colors"
               >
-                {loggingOut ? "Logging out..." : "Logout"}
+                {loggingOut ? "Signing out..." : "Sign Out"}
               </button>
-            </>
+            </div>
           ) : (
-            <>
+            <div className="pt-3 border-t border-border flex flex-col gap-2">
               <Link
                 to="/auth"
-                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400"
+                className="w-full text-center py-2.5 rounded-md font-semibold text-foreground border border-border"
                 onClick={() => setMenuVisible(false)}
               >
-                Login
+                Sign In
               </Link>
               <Link
                 to="/auth"
-                className="block px-3 py-2 rounded-md text-base font-semibold bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white"
+                className="w-full text-center py-2.5 rounded-md font-semibold btn-primary"
                 onClick={() => setMenuVisible(false)}
               >
-                Register
+                Create Account
               </Link>
-            </>
+            </div>
           )}
         </div>
       )}
